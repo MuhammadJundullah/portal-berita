@@ -22,7 +22,7 @@
 <body>
     @include('Components.navbar')
 
-    <div class="content">
+    <div class="content bg-slate-500">
         @yield('content')
     </div>
 

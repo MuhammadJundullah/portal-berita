@@ -18,12 +18,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            // return redirect()->intended('/admin');
+            // return response()->json(['message' => 'Login berhasil!'], 200);
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return redirect()->back()->with('error', 'Password salah!');
     }
 
     public function logout(Request $request)

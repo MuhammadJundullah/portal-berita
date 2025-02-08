@@ -12,7 +12,7 @@ class NewsController extends Controller
     public function index()
     {
         // Ambil berita terbaru
-        $berita_terbaru = News::orderBy('date', 'desc')->take(4)->get();
+        $berita_terbaru = News::orderBy('date', 'desc')->take(15)->get();
 
         // Ambil berita trending berdasarkan jumlah like dan share terbanyak
         $berita_trending = News::with('user_interactions')
@@ -25,7 +25,7 @@ class NewsController extends Controller
                 }
             ])
             ->orderByRaw('(total_likes + total_shares) DESC')
-            ->take(4)
+            ->take(15)
             ->get();
 
         return view('home', compact('berita_terbaru', 'berita_trending'));

@@ -28,7 +28,7 @@
       <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
         <div class="flex shrink-0 items-center">
           <img class="h-20 w-auto" src="{{ asset('img/nobck.png') }}" alt="NewsToday.com">
-          <p  class="rounded-md px-3 py-2 text-sm font-medium  text-white" aria-current="page">NewsToday.com</p>
+          <p  class="rounded-md px-3 py-2 text-sm fw-light  text-white" aria-current="page"><span class="fw-bold">News</span>Today.com</p>
         </div>
         <div class="hidden sm:ml-6 sm:block">
           {{-- <div class="flex space-x-4">

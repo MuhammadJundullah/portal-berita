@@ -3,8 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="img/nobck.png" type="image/x-icon">
 
-        <title>Laravel</title>
+        <title>NewsToday.com</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

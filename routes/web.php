@@ -1,23 +1,40 @@
 <?php
 
-use App\Models\kaffah;
+use App\Models\News;
+use App\Models\User_interactions;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NewsController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\KaffahController;
 
-Route::get('/', [KaffahController::class, 'index']);
+Route::get('/', [NewsController::class, 'index']);
 
-Route::get('/login', [AuthController::class, 'index'])->name('login');
+Route::get('/login', [AuthController::class, 'index'])->name('login.view');
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index']);
-    Route::post('/kaffah/store', [KaffahController::class, 'store'])->name('kaffah.store');
-    Route::delete('/kaffah/{id}/destroy', [KaffahController::class, 'destroy'])->name('kaffah.destroy');
+Route::post('/interact', [NewsController::class, 'interact']);
+
+Route::get('/check-like-status/{news_id}', function ($news_id) {
+    $liked = User_interactions::where('news_id', $news_id)
+        ->where('user_id', Auth::id())
+        ->where('interaction_type', 'like')
+        ->exists();
+
+    return response()->json(['liked' => $liked]);
 });
 
-Route::post('/kaffah/update', [KaffahController::class, 'update'])->name('kaffah.update');
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('/admin', [AdminController::class, 'index']);
+
+    Route::post('/News/store', [NewsController::class, 'store'])->name('News.store');
+
+    Route::delete('/News/{id}/destroy', [NewsController::class, 'destroy'])->name('News.destroy');
+
+});
+
+Route::post('/News/update', [NewsController::class, 'update'])->name('News.update');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

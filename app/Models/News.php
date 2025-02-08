@@ -10,7 +10,7 @@ class News extends Model
     /** @use HasFactory<\Database\Factories\NewsFactory> */
     use HasFactory;
 
-    public function interactions()
+    public function user_interactions()
     {
         return $this->hasMany(User_interactions::class);
     }

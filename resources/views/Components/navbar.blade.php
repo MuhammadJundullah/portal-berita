@@ -27,13 +27,14 @@
       </div>
       <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
         <div class="flex shrink-0 items-center">
-          <img class="h-8 w-auto" src="{{ asset('img/logo.webp') }}" alt="Your Company">
+          <img class="h-20 w-auto" src="{{ asset('img/nobck.png') }}" alt="NewsToday.com">
+          <p  class="rounded-md px-3 py-2 text-sm font-medium  text-white" aria-current="page">NewsToday.com</p>
         </div>
         <div class="hidden sm:ml-6 sm:block">
-          <div class="flex space-x-4">
+          {{-- <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <p  class="rounded-md px-3 py-2 text-sm font-medium  text-white" aria-current="page">NewsToday.com</p>
-          </div>
+          </div> --}}
           <div class="flex space-x-4">
             <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             {{-- <a href="/" class="{{ request()->is('/') || request()->is('admin') ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white' }} rounded-md px-3 py-2 text-sm font-medium" aria-current="page">NewsToday.com</a> --}}
@@ -42,16 +43,16 @@
       </div>
 
       @if(Auth::check())
-        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-          <button type="button" class="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white ">
-            <span class="absolute -inset-1.5"></span>
-            <span class="sr-only">View notifications</span>
-          </button>
+        <div class="pt-2">
           <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="text-gray-400 hover:text-white">Logout</button>
           </form>
         </div>
+      @endif
+
+      @if(!Auth::check())
+          <button class="text-gray-400 hover:text-white"" onclick="toggleModal()">Login</button>
       @endif
 
     </div>
@@ -61,7 +62,7 @@
   <div class="sm:hidden" id="mobile-menu">
     <div class="space-y-1 px-2 pt-2 pb-3">
       <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-      <a href="#" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Dashboard</a>
+      {{-- <a href="#" class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white" aria-current="page">Dashboard</a> --}}
     </div>
   </div>
 </nav>

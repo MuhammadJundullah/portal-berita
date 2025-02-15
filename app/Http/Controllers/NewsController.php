@@ -81,4 +81,20 @@ class NewsController extends Controller
             return response()->json(['message' => 'Failed to process interaction', 'error' => $e->getMessage()], 500);
         }
     }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('query'); // Ambil input pencarian dari user
+
+        $news = News::when($query, function ($q) use ($query) {
+            $q->where('headline', 'like', "%$query%")
+                ->orWhere('short_description', 'like', "%$query%");
+        })
+            ->orderBy('date', 'desc')
+            ->take(15)
+            ->get();
+
+        return view('search', compact('news', 'query'));
+    }
+
 }

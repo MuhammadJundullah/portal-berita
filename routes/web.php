@@ -16,6 +16,8 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::post('/interact', [NewsController::class, 'interact']);
 
+Route::get('/search', [NewsController::class, 'search'])->name('search');
+
 Route::get('/check-like-status/{news_id}', function ($news_id) {
     $liked = User_interactions::where('news_id', $news_id)
         ->where('user_id', Auth::id())

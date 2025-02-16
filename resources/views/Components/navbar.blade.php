@@ -44,15 +44,23 @@
 
       @if(Auth::check())
         <div class="pt-2">
-          <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="text-gray-400 hover:text-white">Logout</button>
-          </form>
+          <ul class="flex gap-4">
+            <li>
+              <a href={{ route('profile', ['id' => Auth::user()->id]) }} class="text-gray-400 hover:text-white">My Profile</a>
+            </li>
+            <li>
+              <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-gray-400 hover:text-white">Logout</button>
+              </form>
+            </li>
+          </ul>
+          
         </div>
       @endif
 
       @if(!Auth::check())
-          <button class="text-gray-400 hover:text-white"" onclick="toggleModal()">Login</button>
+          <button class="text-gray-400 hover:text-white"" onclick="toggleModal()">Login/Register</button>
       @endif
 
     </div>

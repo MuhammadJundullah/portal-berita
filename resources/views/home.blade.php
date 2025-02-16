@@ -4,7 +4,16 @@
 
 {{-- modal password salah --}}
 @if(session('error'))
-    <script>alert("{{ session('error') }}");</script>
+   <div class="pt-10 px-10">
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Oops! Ada kesalahan:</strong>
+            <ul class="mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
 @endif
 
 <!-- Modal login -->
@@ -76,13 +85,13 @@
 
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
                 <div class="m-10">
-                    <p class="my-5 text-xl fw-bold">Berita Tranding</p>
-                    <div class="h-screen container grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
+                    <p class="my-5 text-xl fw-bold">Berita Trending</p>
+                    <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_trending as $item)            
                             <article class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
                                 <a href="#">
                                     <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                                        {{ $item->headline }}
+                                        <a href={{ $item->link }} terget="_blank">{{ $item->headline }}</a>
                                     </h3>
                                 </a>
                                 <ul class="flex gap-3 text-slate-400">
@@ -127,6 +136,11 @@
                             </article>
                         @endforeach
                     </div>
+
+                    <div class="mt-4">
+                        {{ $berita_trending->links() }}
+                    </div>
+
                 </div>
             </div>
         @endif
@@ -191,12 +205,12 @@
         </div>
     </div>
 
-    {{-- berita tranding untuk pengguna terauthentikasi atau pengguna lama --}}
+    {{-- berita trending untuk pengguna terauthentikasi atau pengguna lama --}}
 
     @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
         <div class="rounded-lg bg-gray-200 mt-7">
             <div class="p-10">
-                <p class="my-5 text-xl fw-bold">Berita Tranding</p>
+                <p class="my-5 text-xl fw-bold">Berita Trending</p>
                 <div class="container flex gap-4 overflow-x-auto max-w-screen max-h-full">
                     @foreach ($berita_trending as $item)            
                         <article class="w-96 flex-shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
@@ -253,10 +267,8 @@
 </div>
 @endsection
 
-<!-- Script  -->
 <script>
-
-    // check like
+    // check like status
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".like-button").forEach(button => {
             const newsId = button.dataset.newsId;
@@ -272,7 +284,7 @@
         });
     });
 
-    // like & share
+    // fetch like & share information
     function sendInteraction(newsId, type) {
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
             toggleModal();
@@ -298,21 +310,6 @@
         .catch(error => console.error('Error:', error));
     }
 
-    // open/close modal 
-    function toggleModal() {
-        const modal = document.getElementById('loginModal');
-        modal.classList.toggle('hidden');
-        if (!modal.classList.contains('hidden')) {
-            modal.classList.remove('opacity-0');
-            modal.firstElementChild.classList.remove('scale-95');
-            modal.firstElementChild.classList.add('scale-100');
-        } else {
-            modal.classList.add('opacity-0');
-            modal.firstElementChild.classList.remove('scale-100');
-            modal.firstElementChild.classList.add('scale-95');
-        }
-    }
-
     // share berita dengan sharepost
     function sharePost(link, newsId, button) {
         if (navigator.share) {
@@ -326,12 +323,28 @@
             alert("Sharing not supported in this browser.");
         }
     }
-</script>
 
-{{-- <script>
-function toggleModal() {
-    let modal = document.getElementById("loginModal");
-    modal.classList.toggle("hidden");
-    modal.classList.toggle("opacity-0");
-}
-</script> --}}
+    // show register modal
+    function toggleRegisterModal() {
+        let modal = document.getElementById("registerModal");
+        modal.classList.toggle("hidden");
+        setTimeout(() => {
+            modal.classList.toggle("opacity-0");
+        }, 10);
+    }
+    
+    // show login modal
+    function toggleModal() {
+        let modal = document.getElementById("loginModal");
+        modal.classList.toggle("hidden");
+        setTimeout(() => {
+            modal.classList.toggle("opacity-0");
+        }, 10);
+    }
+
+    // switch to register modal
+    function switchToRegister() {
+        toggleModal(); 
+        toggleRegisterModal(); 
+    }
+</script>

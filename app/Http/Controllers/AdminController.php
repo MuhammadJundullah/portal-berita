@@ -9,7 +9,6 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $data = kaffah::all();
-        return view('admin', compact('data'));
+
     }
 }

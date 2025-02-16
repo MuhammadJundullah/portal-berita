@@ -1,42 +1,44 @@
 <?php
 
-use App\Models\News;
 use App\Models\User_interactions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NewsController;
-use App\Http\Controllers\AdminController;
 
-Route::get('/', [NewsController::class, 'index']);
+Route::get('/', [NewsController::class, 'index'])->name('home');
 
-Route::get('/login', [AuthController::class, 'index'])->name('login.view');
-
-Route::post('/login', [AuthController::class, 'login'])->name('login');
-
-Route::post('/interact', [NewsController::class, 'interact']);
+Route::get('/other-news', [NewsController::class, 'other_news'])->name('other_news');
 
 Route::get('/search', [NewsController::class, 'search'])->name('search');
 
-Route::get('/check-like-status/{news_id}', function ($news_id) {
-    $liked = User_interactions::where('news_id', $news_id)
-        ->where('user_id', Auth::id())
-        ->where('interaction_type', 'like')
-        ->exists();
+Route::get('/login', [AuthController::class, 'view_login'])->name('login');
 
-    return response()->json(['liked' => $liked]);
+Route::get('/Unauthorized', [AuthController::class, 'unauthenticated'])->name('unauthenticated');
+
+Route::middleware(['guest'])->group(function () {
+
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
 });
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/admin', [AdminController::class, 'index']);
+    Route::get('/check-like-status/{news_id}', function ($news_id) {
+        $liked = User_interactions::where('news_id', $news_id)
+            ->where('user_id', Auth::id())
+            ->where('interaction_type', 'like')
+            ->exists();
 
-    Route::post('/News/store', [NewsController::class, 'store'])->name('News.store');
+        return response()->json(['liked' => $liked]);
+    });
 
-    Route::delete('/News/{id}/destroy', [NewsController::class, 'destroy'])->name('News.destroy');
+    Route::post('/interact', [NewsController::class, 'interact']);
 
+    Route::get('/profile', [AuthController::class, 'profile'])->name('profile');
+
+    Route::post('/edit-profile', [AuthController::class, 'edit_profile'])->name('edit.profile');
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
-
-Route::post('/News/update', [NewsController::class, 'update'])->name('News.update');
-
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

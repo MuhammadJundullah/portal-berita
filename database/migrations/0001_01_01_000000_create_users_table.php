@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->string('email', 255)->unique();
-            $table->timestamp('email_verified_at')->nullable(); // Menambahkan kolom email_verified_at
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password', 255);
-            $table->rememberToken(); // Menambahkan kolom remember_token
-            $table->json('preferences');
+            $table->rememberToken();
+            $table->json('preferences')->nullable();
             $table->timestamps();
         });
 

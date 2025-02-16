@@ -115,7 +115,7 @@ class NewsController extends Controller
 
     public function search(Request $request)
     {
-        $newsapi = new NewsApi('7c5e9c08427f462bb9ddb8b1a7737485');
+        $newsapi = new NewsApi(env('API_KEY'));
 
         $q = $request->input('query');
         $sources = null;
@@ -179,7 +179,7 @@ class NewsController extends Controller
         if (Cache::has($cacheKey)) {
             $all_articles = Cache::get($cacheKey);
         } else {
-            $newsapi = new NewsApi('7c5e9c08427f462bb9ddb8b1a7737485');
+            $newsapi = new NewsApi(env('API_KEY'));
 
             $q = null;
             $sources = null;

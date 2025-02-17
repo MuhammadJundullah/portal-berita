@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use jcobhams\NewsApi\NewsApi;
-use App\Models\User_interactions;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 
@@ -26,78 +24,122 @@ class NewsController extends Controller
     //     return view('home', compact('berita_terbaru', 'berita_trending'));
     // }
 
+    // old news query from local database
+    // public function index()
+    // {
+    //     // Ambil berita terbaru
+    //     $berita_terbaru = News::orderBy('created_at', 'asc')->take(15)->get();
+
+    //     // Ambil berita trending berdasarkan jumlah like dan share terbanyak
+    //     $berita_trending = News::with('user_interactions')
+    //         ->withCount([
+    //             'user_interactions as total_likes' => function ($query) {
+    //                 $query->where('interaction_type', 'like');
+    //             },
+    //             'user_interactions as total_shares' => function ($query) {
+    //                 $query->where('interaction_type', 'share');
+    //             }
+    //         ])
+    //         ->orderByRaw('(total_likes + total_shares) DESC')
+    //         ->paginate(10);
+
+    //     return view('home', compact('berita_terbaru', 'berita_trending'));
+    // }
+
     public function index()
     {
-        // Ambil berita terbaru
-        $berita_terbaru = News::orderBy('created_at', 'asc')->take(15)->get();
+        $cacheKeyLatest = 'news_latest';
+        $cacheKeyTrending = 'news_trending_' . request('page', 1); // Cache per halaman
+        $cacheTime = now()->addMinutes(120);
+        $apiKey = env('API_KEY');
 
-        // Ambil berita trending berdasarkan jumlah like dan share terbanyak
-        $berita_trending = News::with('user_interactions')
-            ->withCount([
-                'user_interactions as total_likes' => function ($query) {
-                    $query->where('interaction_type', 'like');
-                },
-                'user_interactions as total_shares' => function ($query) {
-                    $query->where('interaction_type', 'share');
-                }
-            ])
-            ->orderByRaw('(total_likes + total_shares) DESC')
-            ->paginate(10);
+        // Caching berita terbaru (20 data, tidak pakai pagination)
+        if (Cache::has($cacheKeyLatest)) {
+            $berita_terbaru = Cache::get($cacheKeyLatest);
+        } else {
+            $responseLatest = Http::get("https://newsapi.org/v2/everything", [
+                'q' => null,
+                'language' => 'en',
+                'sortBy' => 'publishedAt',
+                'pageSize' => 20,
+                'apiKey' => $apiKey
+            ]);
+
+            $berita_terbaru = $responseLatest->successful() ? $responseLatest->json()['articles'] : [];
+            Cache::put($cacheKeyLatest, $berita_terbaru, $cacheTime);
+        }
+
+        // Caching berita trending (10 data per halaman)
+        if (Cache::has($cacheKeyTrending)) {
+            $berita_trending = Cache::get($cacheKeyTrending);
+        } else {
+            $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
+                'q' => null,
+                'language' => 'en',
+                'pageSize' => 10,
+                'page' => request('page', 1),
+                'apiKey' => $apiKey
+            ]);
+
+            $berita_trending = $responseTrending->successful() ? $responseTrending->json()['articles'] : [];
+            Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
+        }
 
         return view('home', compact('berita_terbaru', 'berita_trending'));
     }
 
-    public function interact(Request $request)
-    {
-        $request->validate([
-            'news_id' => 'required',
-            'interaction_type' => 'required'
-        ]);
+    // for get data user interaction in home page
+    // public function interact(Request $request)
+    // {
+    //     $request->validate([
+    //         'news_id' => 'required',
+    //         'interaction_type' => 'required'
+    //     ]);
 
-        try {
-            $userId = Auth::id();
-            $newsId = $request->news_id;
-            $interactionType = $request->interaction_type;
+    //     try {
+    //         $userId = Auth::id();
+    //         $newsId = $request->news_id;
+    //         $interactionType = $request->interaction_type;
 
-            // Cek apakah user sudah melakukan interaksi
-            $existingInteraction = User_interactions::where('user_id', $userId)
-                ->where('news_id', $newsId)
-                ->where('interaction_type', $interactionType)
-                ->first();
+    //         $existingInteraction = User_interactions::where('user_id', $userId)
+    //             ->where('news_id', $newsId)
+    //             ->where('interaction_type', $interactionType)
+    //             ->first();
 
-            if ($interactionType === 'like') {
-                if ($existingInteraction) {
-                    // Jika sudah like, maka unlike (hapus dari database)
-                    $existingInteraction->delete();
-                    return response()->json(['message' => 'Unliked successfully', 'liked' => false], 200);
-                } else {
-                    // Jika belum like, maka like (tambah ke database)
-                    User_interactions::create([
-                        'user_id' => $userId,
-                        'news_id' => $newsId,
-                        'interaction_type' => $interactionType,
-                        'timestamp' => now(),
-                    ]);
-                    return response()->json(['message' => 'Liked successfully', 'liked' => true], 200);
-                }
-            }
+    //         if ($interactionType === 'like') {
+    //             if ($existingInteraction) {
+    //                 // Jika sudah like, maka unlike (hapus dari database)
+    //                 $existingInteraction->delete();
+    //                 return response()->json(['message' => 'Unliked successfully', 'liked' => false], 200);
+    //             } else {
+    //                 // Jika belum like, maka like (tambah ke database)
+    //                 User_interactions::create([
+    //                     'user_id' => $userId,
+    //                     'news_id' => $newsId,
+    //                     'interaction_type' => $interactionType,
+    //                     'timestamp' => now(),
+    //                 ]);
+    //                 return response()->json(['message' => 'Liked successfully', 'liked' => true], 200);
+    //             }
+    //         }
 
-            // Jika bukan like (misalnya share atau lainnya), hanya tambahkan ke database
-            if (!$existingInteraction) {
-                User_interactions::create([
-                    'user_id' => $userId,
-                    'news_id' => $newsId,
-                    'interaction_type' => $interactionType,
-                    'timestamp' => now(),
-                ]);
-            }
+    //         // Jika bukan like (misalnya share atau lainnya), hanya tambahkan ke database
+    //         if (!$existingInteraction) {
+    //             User_interactions::create([
+    //                 'user_id' => $userId,
+    //                 'news_id' => $newsId,
+    //                 'interaction_type' => $interactionType,
+    //                 'timestamp' => now(),
+    //             ]);
+    //         }
 
-            return response()->json(['message' => 'Interaction saved successfully'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to process interaction', 'error' => $e->getMessage()], 500);
-        }
-    }
+    //         return response()->json(['message' => 'Interaction saved successfully'], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['message' => 'Failed to process interaction', 'error' => $e->getMessage()], 500);
+    //     }
+    // }
 
+    // search old from local database
     // public function search(Request $request)
     // {
     //     $query = $request->input('query'); // Ambil input pencarian dari user
@@ -133,10 +175,8 @@ class NewsController extends Controller
             return view('search', ['news' => null]);
         }
 
-        // Buat cache key unik berdasarkan query & halaman
         $cacheKey = 'search_' . md5($q . $page);
 
-        // Cek apakah hasil pencarian sudah ada di cache
         if (Cache::has($cacheKey)) {
             $news = Cache::get($cacheKey);
         } else {
@@ -155,7 +195,6 @@ class NewsController extends Controller
 
             $news = json_decode(json_encode($news), true);
 
-            // Cek apakah response API berhasil
             if (!isset($news['articles'])) {
                 return redirect()->back()->with(
                     'error',
@@ -163,8 +202,7 @@ class NewsController extends Controller
                 );
             }
 
-            // Simpan hasil pencarian ke cache selama 15 menit
-            Cache::put($cacheKey, $news, now()->addMinutes(15));
+            Cache::put($cacheKey, $news, now()->addMinutes(60));
         }
 
         return view('search', compact('news', 'q'));
@@ -172,10 +210,9 @@ class NewsController extends Controller
 
     public function other_news()
     {
-        $cacheKey = 'news_wsj'; // Nama cache key
-        $cacheTime = now()->addMinutes(30); // Cache selama 30 menit
+        $cacheKey = 'news_wsj';
+        $cacheTime = now()->addMinutes(60);
 
-        // Cek apakah data sudah ada di cache
         if (Cache::has($cacheKey)) {
             $all_articles = Cache::get($cacheKey);
         } else {
@@ -211,12 +248,10 @@ class NewsController extends Controller
                 true
             );
 
-            // Cek apakah response API berhasil
             if (!isset($all_articles['articles'])) {
                 return redirect()->back()->with('error', 'Failed to fetch news');
             }
-
-            // Simpan ke cache
+            
             Cache::put($cacheKey, $all_articles, $cacheTime);
         }
 

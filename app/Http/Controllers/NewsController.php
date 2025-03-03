@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use jcobhams\NewsApi\NewsApi;
+use App\Models\User_interactions;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+
 
 class NewsController extends Controller
 {
@@ -53,15 +56,15 @@ class NewsController extends Controller
         $cacheTime = now()->addMinutes(120);
         $apiKey = env('API_KEY');
 
-        // Caching berita terbaru (20 data, tidak pakai pagination)
         if (Cache::has($cacheKeyLatest)) {
             $berita_terbaru = Cache::get($cacheKeyLatest);
         } else {
             $responseLatest = Http::get("https://newsapi.org/v2/everything", [
-                'q' => null,
+                'q' => 'today',
                 'language' => 'en',
                 'sortBy' => 'publishedAt',
                 'pageSize' => 20,
+                'page' => request('page', 1),
                 'apiKey' => $apiKey
             ]);
 
@@ -69,14 +72,13 @@ class NewsController extends Controller
             Cache::put($cacheKeyLatest, $berita_terbaru, $cacheTime);
         }
 
-        // Caching berita trending (10 data per halaman)
         if (Cache::has($cacheKeyTrending)) {
             $berita_trending = Cache::get($cacheKeyTrending);
         } else {
             $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
                 'q' => null,
                 'language' => 'en',
-                'pageSize' => 10,
+                'pageSize' => 20,
                 'page' => request('page', 1),
                 'apiKey' => $apiKey
             ]);
@@ -88,56 +90,99 @@ class NewsController extends Controller
         return view('home', compact('berita_terbaru', 'berita_trending'));
     }
 
+    public function news($params, Request $request)
+    {
+        $page = $request->query('page', 1); // Ambil page dari URL, default 1
+        $cacheKey = "news_{$params}_page_{$page}";
+        $cacheTime = now()->addMinutes(120);
+        $apiKey = env('API_KEY');
+
+        if (Cache::has($cacheKey)) {
+            $berita = Cache::get($cacheKey);
+        } else {
+            $endpoint = ($params === 'trending') ? "top-headlines" : "everything";
+
+            $queryParams = [
+                'language' => 'en',
+                'pageSize' => 20,
+                'page' => $page,
+                'apiKey' => $apiKey
+            ];
+
+            if ($params === 'newest') {
+                $queryParams['q'] = 'today';
+                $queryParams['sortBy'] = 'publishedAt';
+            }
+
+            $response = Http::get("https://newsapi.org/v2/{$endpoint}", $queryParams);
+            $berita = $response->successful() ? $response->json()['articles'] : [];
+
+            Cache::put($cacheKey, $berita, $cacheTime);
+        }
+
+        return view('other_news', compact(
+            'berita',
+            'params',
+            'page'
+        ));
+    }
+
     // for get data user interaction in home page
-    // public function interact(Request $request)
-    // {
-    //     $request->validate([
-    //         'news_id' => 'required',
-    //         'interaction_type' => 'required'
-    //     ]);
+    public function interact(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
 
-    //     try {
-    //         $userId = Auth::id();
-    //         $newsId = $request->news_id;
-    //         $interactionType = $request->interaction_type;
+        try {
+            // Validasi request
+            $validated = $request->validate([
+                'news_title' => 'required|string',
+                'interaction_type' => 'required|in:like,share',
+            ]);
 
-    //         $existingInteraction = User_interactions::where('user_id', $userId)
-    //             ->where('news_id', $newsId)
-    //             ->where('interaction_type', $interactionType)
-    //             ->first();
+            if ($validated['interaction_type'] === 'like') {
+                // Cek apakah user sudah like sebelumnya
+                $existingInteraction = User_interactions::where('user_id', Auth::id())
+                ->where('news_title', $validated['news_title'])
+                ->where('interaction_type', 'like')
+                ->first();
 
-    //         if ($interactionType === 'like') {
-    //             if ($existingInteraction) {
-    //                 // Jika sudah like, maka unlike (hapus dari database)
-    //                 $existingInteraction->delete();
-    //                 return response()->json(['message' => 'Unliked successfully', 'liked' => false], 200);
-    //             } else {
-    //                 // Jika belum like, maka like (tambah ke database)
-    //                 User_interactions::create([
-    //                     'user_id' => $userId,
-    //                     'news_id' => $newsId,
-    //                     'interaction_type' => $interactionType,
-    //                     'timestamp' => now(),
-    //                 ]);
-    //                 return response()->json(['message' => 'Liked successfully', 'liked' => true], 200);
-    //             }
-    //         }
+                if ($existingInteraction) {
+                    // Jika sudah like, hapus dari database (unlike)
+                    $existingInteraction->delete();
+                    return response()->json(['message' => 'Like removed successfully!', 'status' => 'unliked']);
+                } else {
+                    // Jika belum, tambahkan like baru
+                    User_interactions::create([
+                        'news_title' => $validated['news_title'],
+                        'interaction_type' => 'like',
+                        'user_id' => Auth::id(),
+                    ]);
+                    return response()->json(['message' => 'Like saved successfully!', 'status' => 'liked']);
+                }
+            } elseif ($validated['interaction_type'] === 'share') {
+                // Simpan share tanpa bisa dihapus
+                User_interactions::create([
+                    'news_title' => $validated['news_title'],
+                    'interaction_type' => 'share',
+                    'user_id' => Auth::id(),
+                ]);
+                return response()->json(['message' => 'Post shared successfully!', 'status' => 'shared']);
+            }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 
-    //         // Jika bukan like (misalnya share atau lainnya), hanya tambahkan ke database
-    //         if (!$existingInteraction) {
-    //             User_interactions::create([
-    //                 'user_id' => $userId,
-    //                 'news_id' => $newsId,
-    //                 'interaction_type' => $interactionType,
-    //                 'timestamp' => now(),
-    //             ]);
-    //         }
-
-    //         return response()->json(['message' => 'Interaction saved successfully'], 200);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['message' => 'Failed to process interaction', 'error' => $e->getMessage()], 500);
-    //     }
-    // }
 
     // search old from local database
     // public function search(Request $request)
@@ -168,7 +213,7 @@ class NewsController extends Controller
         $language = 'en';
         $today = now()->toDateString();
         $sort_by = 'publishedAt';
-        $page_size = 10;
+        $page_size = 12;
         $page = $request->input('page', 1);
 
         if (!$q) {

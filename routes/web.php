@@ -16,6 +16,8 @@ Route::get('/login', [AuthController::class, 'view_login'])->name('login');
 
 Route::get('/Unauthorized', [AuthController::class, 'unauthenticated'])->name('unauthenticated');
 
+Route::get('/news/{params}', [NewsController::class, 'news'])->name('news');
+
 Route::middleware(['guest'])->group(function () {
 
     Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -25,9 +27,13 @@ Route::middleware(['guest'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/check-like-status/{news_id}', function ($news_id) {
-        $liked = User_interactions::where('news_id', $news_id)
-            ->where('user_id', Auth::id())
+    Route::get('/check-like-status/{news_title}', function ($news_title) {
+        if (!Auth::check()) {
+            return response()->json(['liked' => false]);
+        }
+
+        $liked = User_interactions::where('user_id', Auth::id())
+            ->where('news_title', $news_title)
             ->where('interaction_type', 'like')
             ->exists();
 

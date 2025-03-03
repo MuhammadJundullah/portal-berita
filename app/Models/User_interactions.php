@@ -11,8 +11,8 @@ class User_interactions extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', // Tambahkan ini
-        'news_id',
+        'news_title',
+        'user_id',
         'interaction_type',
     ];
 
@@ -21,8 +21,8 @@ class User_interactions extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function news()
-    {
-        return $this->belongsTo(News::class);
-    }
+    // public function news()
+    // {
+    //     return $this->belongsTo(News::class);
+    // }
 }

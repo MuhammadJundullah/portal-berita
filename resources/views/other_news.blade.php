@@ -1,5 +1,3 @@
-{{-- {{dd($news['articles'])}} --}}
-
 @extends('Components.layout')
 
 @section('content')
@@ -15,13 +13,13 @@
         <div class="rounded-lg bg-gray-200 lg:col-span-2">
             <div class="m-10">
                 <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500">&larr; kembali</a>
-                <p class="my-5 text-xl fw-bold">The news about apple.</p>
+                <p class="my-5 text-xl fw-bold">{{ucfirst($params)}} news.</p>
                 <div class="container grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 ">
-                    @foreach ($all_articles['articles'] as $item)
+                    @foreach ($berita as $item)
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
                             <a href={{ $item['url'] }}>
-                                <img src={{$item['urlToImage']}} alt={{$item['urlToImage']}} class="rounded-lg">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
                                 </h3>

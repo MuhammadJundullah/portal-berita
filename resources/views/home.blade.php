@@ -91,7 +91,7 @@
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
                             <a href={{ $item['url'] }}>
-                                <img src={{$item['urlToImage']}} alt={{$item['urlToImage']}} class="rounded-lg">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
                                 </h3>
@@ -114,30 +114,32 @@
                             </a>
 
                             <!-- Tombol Like dan Share -->
-                            <div class="mt-4 flex items-center gap-4">
+                             <div class="mt-4 flex items-center gap-4">
 
                             <!-- Tombol Like -->
-                            {{-- <button data-news-id="{{ $item->id }}" 
-                                onclick="sendInteraction({{ $item->id }}, 'like', this)" 
+                            <button data-news-id="{{ $item['title'] }}" 
+                                onclick="sendInteraction('{{ addslashes($item['title']) }}', 'like', this)" 
                                 class="like-button flex items-center gap-2 text-gray-600 hover:text-red-500 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 14.7v5.3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-3.6l.6-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4H8a2 2 0 0 0-2 2v2.7z"/>
                                 </svg>
                                 Like
-                            </button> --}}
+                            </button>
 
-                            <!-- Tombol Share -->
-                            {{-- <button onclick="sharePost('{{ $item->link }}', {{ $item->id }}, this)" 
+
+                                <!-- Tombol Share -->
+                            <button onclick="sharePost('{{ $item['url'] }}', '{{ addslashes($item['title']) }}', this)" 
                                 class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 5h6m0 0v6m0-6L10 16l-4-4-6 6"/>
                                 </svg>
                                 Share
-                            </button> --}}
+                            </button>
                             </div>
                         </article>
                         @endforeach
                     </div>
+                    <p class="text-md hover:text-slate-500 my-2 text-black transition" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
 
                     {{-- <div class="mt-4">
                         {{ $berita_trending->links() }}
@@ -157,7 +159,7 @@
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
                             <a href={{ $item['url'] }}>
-                                <img src={{$item['urlToImage']}} alt={{$item['urlToImage']}} class="rounded-lg">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
                                 </h3>
@@ -183,27 +185,28 @@
                             <div class="mt-4 flex items-center gap-4">
 
                             <!-- Tombol Like -->
-                            {{-- <button data-news-id="{{ $item->id }}" 
-                                onclick="sendInteraction({{ $item->id }}, 'like', this)" 
+                            <button data-news-id="{{ $item['title'] }}" 
+                                onclick="sendInteraction('{{ addslashes($item['title']) }}', 'like', this)" 
                                 class="like-button flex items-center gap-2 text-gray-600 hover:text-red-500 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 14.7v5.3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-3.6l.6-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4H8a2 2 0 0 0-2 2v2.7z"/>
                                 </svg>
                                 Like
-                            </button> --}}
+                            </button>
 
-                            <!-- Tombol Share -->
-                            {{-- <button onclick="sharePost('{{ $item->link }}', {{ $item->id }}, this)" 
+                                <!-- Tombol Share -->
+                             <button onclick="sharePost('{{ $item['url'] }}', '{{ addslashes($item['title']) }}', this)" 
                                 class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 5h6m0 0v6m0-6L10 16l-4-4-6 6"/>
                                 </svg>
                                 Share
-                            </button> --}}
+                            </button>
                             </div>
                         </article>
                     @endforeach
                 </div>
+                <p class="text-md hover:text-slate-500 my-2 text-black transition" ><a href="/news/newest?page=1">lihat berita terbaru lainnya &rarr;</a></p>
             </div>
         </div>
     </div>
@@ -243,14 +246,15 @@
                             <div class="mt-4 flex items-center gap-4">
 
                             <!-- Tombol Like -->
-                            <button data-news-id="{{ $item->id }}" 
-                                onclick="sendInteraction({{ $item->id }}, 'like', this)" 
+                            <button data-news-id="{{ $item['title'] }}" 
+                                onclick="sendInteraction('{{ addslashes($item['title']) }}', 'like', this)" 
                                 class="like-button flex items-center gap-2 text-gray-600 hover:text-red-500 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 14.7v5.3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-3.6l.6-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4H8a2 2 0 0 0-2 2v2.7z"/>
                                 </svg>
                                 Like
                             </button>
+
 
                             <!-- Tombol Share -->
                             <button onclick="sharePost('{{ $item->link }}', {{ $item->id }}, this)" 
@@ -272,60 +276,81 @@
 
 <script>
     // check like status
-    // document.addEventListener("DOMContentLoaded", function () {
-    //     document.querySelectorAll(".like-button").forEach(button => {
-    //         const newsId = button.dataset.newsId;
-    //         fetch(`/check-like-status/${newsId}`)
-    //             .then(response => response.json())
-    //             .then(data => {
-    //                 if (data.liked) {
-    //                     button.classList.remove("text-gray-600");
-    //                     button.classList.add("text-red-500");
-    //                 }
-    //             })
-    //             .catch(error => console.error("Error fetching like status:", error));
-    //     });
-    // });
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".like-button").forEach(button => {
+            const newsTitle = button.dataset.newsId; // Pastikan pakai news_title, bukan news_id
+
+            fetch(`/check-like-status/${encodeURIComponent(newsTitle)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked) {
+                        button.classList.remove("text-gray-600");
+                        button.classList.add("text-red-500");
+                    }
+                })
+                .catch(error => console.error("Error fetching like status:", error));
+        });
+    });
+
 
     // fetch like & share information
-    // function sendInteraction(newsId, type) {
-    //     if (!{{ Auth::check() ? 'true' : 'false' }}) {
-    //         toggleModal();
-    //         return;
-    //     }
+    function sendInteraction(newsId, type, button) {
+        if (!{{ Auth::check() ? 'true' : 'false' }}) {
+            toggleModal();
+            return;
+        }
 
-    //     fetch('/interact', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    //         },
-    //         body: JSON.stringify({
-    //             news_id: newsId,
-    //             interaction_type: type
-    //         })
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         alert(data.message); 
-    //         location.reload(); 
-    //     })
-    //     .catch(error => console.error('Error:', error));
-    // }
+        fetch('/interact', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                news_title: newsId,
+                interaction_type: type
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            location.reload(); 
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
 
     // share berita dengan sharepost
-    // function sharePost(link, newsId, button) {
-    //     if (navigator.share) {
-    //         navigator.share({
-    //             title: document.title,
-    //             url: link
-    //         }).then(() => {
-    //             sendInteraction(newsId, 'share', button); 
-    //         }).catch(err => console.log("Share failed:", err));
-    //     } else {
-    //         alert("Sharing not supported in this browser.");
-    //     }
-    // }
+    function sharePost(link, newsTitle, button) {
+        if (navigator.share) {
+            navigator.share({
+                title: newsTitle, 
+                url: link
+            }).then(() => {
+                fetch('/interact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        news_title: newsTitle,
+                        interaction_type: 'share'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    button.classList.remove("text-gray-600");
+                    button.classList.add("text-blue-600");
+                })
+                .catch(error => console.error("Error:", error));
+            }).catch(err => console.log("Share failed:", err));
+        } else {
+            alert("Sharing not supported in this browser.");
+        }
+    }
+
 
     // show register modal
     function toggleRegisterModal() {

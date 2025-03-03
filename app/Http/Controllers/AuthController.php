@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use App\Models\News_category;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -77,15 +78,11 @@ class AuthController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $news_category = News::select('category')->distinct()->get()
-            ->map(function ($item, $index) {
-                return [
-                    'id' => $index + 1,
-                    'category' => $item->category,
-                ];
-            });
+        $news_category = News_category::all();
 
-        return view('profile', compact('user', 'news_category'));
+        $user_preferences = $user->preferences = json_decode($user->preferences);
+
+        return view('profile', compact('user', 'news_category', 'user_preferences'));
     }
 
     public function edit_profile(Request $request)

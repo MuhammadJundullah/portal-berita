@@ -24,6 +24,10 @@ class User extends Authenticatable
         'password',
     ];
 
+    protected $casts = [
+        'preferences' => 'array',
+    ];
+
     /**
      * The attributes that should be hidden for serialization.
      *

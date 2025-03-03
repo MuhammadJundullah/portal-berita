@@ -1,4 +1,4 @@
-    <div class="w-full rounded-lg z-10 bg-[url('{{ asset('img/nobck.png') }}')] bg-cover bg-center">
+    <div class="w-full rounded-lg z-10 bg-cover bg-center">
         <ul class="flex justify-between items-center">
             <li class="text-white">{{ date('l, d F Y') }}</li>
             <li> 

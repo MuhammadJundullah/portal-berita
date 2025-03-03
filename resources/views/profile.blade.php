@@ -64,22 +64,27 @@
                             <div>
                             <h2 class="pb-10">Pick a news category to explore !</h2>
                                 <div class="grid grid-cols-5 gap-4 text-center">
-                                    @foreach ($news_category as $item)
+                                   @foreach ($news_category as $item)
+                                        @php
+                                            $isChecked = is_array($user_preferences) && in_array($item->name, $user_preferences);
+                                        @endphp
                                         <label
-                                            for="category_{{$item['id']}}"
-                                            class="block w-full cursor-pointer rounded-lg border border-white p-3 text-gray-600 hover:border-black has-[:checked]:border-black has-[:checked]:bg-black has-[:checked]:text-white"
+                                            for="category_{{$item->id}}"
+                                            class="block w-full cursor-pointer rounded-lg border p-3 text-gray-600 
+                                            {{ $isChecked ? 'border-black bg-black text-white' : 'border-white hover:border-black' }}"
                                             tabindex="0"
-                                            onclick="toggleCheckbox('category_{{$item['id']}}')"
+                                            onclick="toggleCheckbox('category_{{$item->id}}')"
                                         >
                                             <input 
                                                 class="sr-only" 
-                                                id="category_{{$item['id']}}" 
+                                                id="category_{{$item->id}}" 
                                                 type="checkbox" 
                                                 name="category[]"  
-                                                value="{{$item['category']}}" 
+                                                value="{{$item->name}}" 
                                                 tabindex="-1"
+                                                {{ $isChecked ? 'checked' : '' }}
                                             />
-                                            <span class="text-sm"> {{$item['category']}}</span>
+                                            <span class="text-sm"> {{$item->name}}</span>
                                         </label>
                                     @endforeach
                                 </div>
@@ -94,10 +99,36 @@
 @endsection
 
 <script>
-    // for check and uncheck box
     function toggleCheckbox(id) {
         let checkbox = document.getElementById(id);
+        let label = checkbox.closest("label");
+
+        // Toggle checked state
         checkbox.checked = !checkbox.checked;
+
+        // Toggle styling
+        if (checkbox.checked) {
+            label.classList.add("border-black", "bg-black", "text-white");
+            label.classList.remove("border-white", "text-gray-600");
+        } else {
+            label.classList.remove("border-black", "bg-black", "text-white");
+            label.classList.add("border-white", "text-gray-600");
+        }
     }
+
+    // Saat halaman dimuat, sesuaikan tampilan berdasarkan checked state
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            let label = checkbox.closest("label");
+            if (checkbox.checked) {
+                label.classList.add("border-black", "bg-black", "text-white");
+                label.classList.remove("border-white", "text-gray-600");
+            } else {
+                label.classList.remove("border-black", "bg-black", "text-white");
+                label.classList.add("border-white", "text-gray-600");
+            }
+        });
+    });
 </script>
+
 

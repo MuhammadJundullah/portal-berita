@@ -24,10 +24,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Seed news setelah users
-        $this->call(NewSeeder::class);
+        // $this->call(NewSeeder::class);
 
         // Seed user_interactions setelah news
-        $this->call(UserInteractionsSeeder::class);
+        // $this->call(UserInteractionsSeeder::class);
+
+        // Seed news categories setelah comments
+        $this->call(NewsCategorySeeder::class);
     }
 
 }

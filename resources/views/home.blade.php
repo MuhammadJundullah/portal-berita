@@ -255,7 +255,6 @@
                                 Like
                             </button>
 
-
                             <!-- Tombol Share -->
                             <button onclick="sharePost('{{ $item->link }}', {{ $item->id }}, this)" 
                                 class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
@@ -275,10 +274,11 @@
 @endsection
 
 <script>
+
     // check like status
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".like-button").forEach(button => {
-            const newsTitle = button.dataset.newsId; // Pastikan pakai news_title, bukan news_id
+            const newsTitle = button.dataset.newsId; 
 
             fetch(`/check-like-status/${encodeURIComponent(newsTitle)}`)
                 .then(response => response.json())
@@ -291,7 +291,6 @@
                 .catch(error => console.error("Error fetching like status:", error));
         });
     });
-
 
     // fetch like & share information
     function sendInteraction(newsId, type, button) {

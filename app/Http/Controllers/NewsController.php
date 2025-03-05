@@ -92,6 +92,7 @@ class NewsController extends Controller
 
     public function news($params, Request $request)
     {
+
         $page = $request->query('page', 1); // Ambil page dari URL, default 1
         $cacheKey = "news_{$params}_page_{$page}";
         $cacheTime = now()->addMinutes(120);

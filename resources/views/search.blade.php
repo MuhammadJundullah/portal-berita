@@ -40,6 +40,30 @@
                                     &rarr;
                                 </span>
                             </a>
+
+                             <!-- Tombol Like dan Share -->
+                            <div class="mt-4 flex items-center gap-4">
+
+                            <!-- Tombol Like -->
+                            <button data-news-id="{{ $item['title'] }}" 
+                                onclick="sendInteraction('{{ addslashes($item['title']) }}', 'like', this)" 
+                                class="like-button flex items-center gap-2 text-gray-600 hover:text-red-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 14.7v5.3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-3.6l.6-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4H8a2 2 0 0 0-2 2v2.7z"/>
+                                </svg>
+                                Like
+                            </button>
+
+
+                                <!-- Tombol Share -->
+                            <button onclick="sharePost('{{ $item['url'] }}', '{{ addslashes($item['title']) }}', this)" 
+                                class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 5h6m0 0v6m0-6L10 16l-4-4-6 6"/>
+                                </svg>
+                                Share
+                            </button>
+                            </div>
                         </article>
                     @endforeach
                 </div>
@@ -59,13 +83,14 @@
 @endsection
 
 <!-- Script  -->
-{{-- <script>
+<script>
 
-    // check like
+    // check like status
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".like-button").forEach(button => {
-            const newsId = button.dataset.newsId;
-            fetch(`/check-like-status/${newsId}`)
+            const newsTitle = button.dataset.newsId; 
+
+            fetch(`/check-like-status/${encodeURIComponent(newsTitle)}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.liked) {
@@ -77,8 +102,8 @@
         });
     });
 
-    // like & share
-    function sendInteraction(newsId, type) {
+    // fetch like & share information
+    function sendInteraction(newsId, type, button) {
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
             toggleModal();
             return;
@@ -91,45 +116,72 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
-                news_id: newsId,
+                news_title: newsId,
                 interaction_type: type
             })
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message); 
+            alert(data.message);
             location.reload(); 
         })
         .catch(error => console.error('Error:', error));
     }
 
-    // open/close modal 
-    function toggleModal() {
-        const modal = document.getElementById('loginModal');
-        modal.classList.toggle('hidden');
-        if (!modal.classList.contains('hidden')) {
-            modal.classList.remove('opacity-0');
-            modal.firstElementChild.classList.remove('scale-95');
-            modal.firstElementChild.classList.add('scale-100');
-        } else {
-            modal.classList.add('opacity-0');
-            modal.firstElementChild.classList.remove('scale-100');
-            modal.firstElementChild.classList.add('scale-95');
-        }
-    }
 
     // share berita dengan sharepost
-    function sharePost(link, newsId, button) {
+    function sharePost(link, newsTitle, button) {
         if (navigator.share) {
             navigator.share({
-                title: document.title,
+                title: newsTitle, 
                 url: link
             }).then(() => {
-                sendInteraction(newsId, 'share', button); 
+                fetch('/interact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        news_title: newsTitle,
+                        interaction_type: 'share'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                    button.classList.remove("text-gray-600");
+                    button.classList.add("text-blue-600");
+                })
+                .catch(error => console.error("Error:", error));
             }).catch(err => console.log("Share failed:", err));
         } else {
             alert("Sharing not supported in this browser.");
         }
     }
-</script> --}}
 
+
+    // show register modal
+    function toggleRegisterModal() {
+        let modal = document.getElementById("registerModal");
+        modal.classList.toggle("hidden");
+        setTimeout(() => {
+            modal.classList.toggle("opacity-0");
+        }, 10);
+    }
+    
+    // show login modal
+    function toggleModal() {
+        let modal = document.getElementById("loginModal");
+        modal.classList.toggle("hidden");
+        setTimeout(() => {
+            modal.classList.toggle("opacity-0");
+        }, 10);
+    }
+
+    // switch to register modal
+    function switchToRegister() {
+        toggleModal(); 
+        toggleRegisterModal(); 
+    }
+</script>

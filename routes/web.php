@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NewsController;
+use App\Http\Controllers\RecommendationController;
 
 Route::get('/', [NewsController::class, 'index'])->name('home');
 
@@ -39,6 +40,8 @@ Route::middleware(['auth'])->group(function () {
 
         return response()->json(['liked' => $liked]);
     });
+
+    Route::get('/recommend/{userId}', [RecommendationController::class, 'recommend']);
 
     Route::post('/interact', [NewsController::class, 'interact']);
 

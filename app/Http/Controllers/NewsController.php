@@ -13,46 +13,10 @@ use Illuminate\Support\Facades\Cache;
 
 class NewsController extends Controller
 {
-    // public function index()
-    // {
-    //     $berita_terbaru = News::orderBy('date', 'desc')->take(15)->get();
-
-    //     $apiKey = "4adbefa5122d420d92fa2f1066a41b7e";
-    //     $url = "https://newsapi.org/v2/everything?q=tesla&from=2025-01-15&sortBy=publishedAt&apiKey={$apiKey}";
-
-    //     $response = Http::get($url);
-    //     $berita_trending = $response->json()['articles'] ?? [];
-    //     dd($berita_trending);
-
-    //     return view('home', compact('berita_terbaru', 'berita_trending'));
-    // }
-
-    // old news query from local database
-    // public function index()
-    // {
-    //     // Ambil berita terbaru
-    //     $berita_terbaru = News::orderBy('created_at', 'asc')->take(15)->get();
-
-    //     // Ambil berita trending berdasarkan jumlah like dan share terbanyak
-    //     $berita_trending = News::with('user_interactions')
-    //         ->withCount([
-    //             'user_interactions as total_likes' => function ($query) {
-    //                 $query->where('interaction_type', 'like');
-    //             },
-    //             'user_interactions as total_shares' => function ($query) {
-    //                 $query->where('interaction_type', 'share');
-    //             }
-    //         ])
-    //         ->orderByRaw('(total_likes + total_shares) DESC')
-    //         ->paginate(10);
-
-    //     return view('home', compact('berita_terbaru', 'berita_trending'));
-    // }
-
     public function index()
     {
         $cacheKeyLatest = 'news_latest';
-        $cacheKeyTrending = 'news_trending_' . request('page', 1); // Cache per halaman
+        $cacheKeyTrending = 'news_trending_' . request('page', 1);
         $cacheTime = now()->addMinutes(120);
         $apiKey = env('API_KEY');
 
@@ -93,7 +57,7 @@ class NewsController extends Controller
     public function news($params, Request $request)
     {
 
-        $page = $request->query('page', 1); // Ambil page dari URL, default 1
+        $page = $request->query('page', 1);
         $cacheKey = "news_{$params}_page_{$page}";
         $cacheTime = now()->addMinutes(120);
         $apiKey = env('API_KEY');

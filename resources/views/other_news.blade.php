@@ -44,7 +44,7 @@
                             </a>
 
                             <!-- Tombol Like dan Share -->
-                                <div class="mt-4 flex items-center gap-4">
+                            <div class="mt-4 flex items-center gap-4">
 
                             <!-- Tombol Like -->
                             <button data-news-id="{{ $item['title'] }}" 

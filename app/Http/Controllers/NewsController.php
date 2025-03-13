@@ -5,14 +5,141 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use jcobhams\NewsApi\NewsApi;
+use Illuminate\Support\Carbon;
+use Phpml\Math\Distance\Cosine;
 use App\Models\User_interactions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-
+use Phpml\FeatureExtraction\TfIdfTransformer;
 
 class NewsController extends Controller
 {
+    private function recommendNews($user)
+    {
+        $userPreferences = json_decode($user->preferences, true);
+        if (!$userPreferences) {
+            return [];
+        }
+
+        $cacheKey = 'news_recommendation_' . request('page', 1);
+        $cacheTime = now()->addMinutes(120);
+        $apiKey = env('API_KEY');
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
+        $response = Http::get("https://newsapi.org/v2/everything", [
+            'q' => implode(' OR ', $userPreferences),
+            'language' => 'en',
+            'sortBy' => 'publishedAt',
+            'pageSize' => 50,
+            'page' => request('page', 1),
+            'apiKey' => $apiKey
+        ]);
+
+        $newsList = $response->successful() ? $response->json()['articles'] : [];
+
+        if (count($newsList) > 10) {
+            $newsList = $this->filterTopNews($newsList, $userPreferences);
+        }
+
+        Cache::put($cacheKey, $newsList, $cacheTime);
+        return $newsList;
+    }
+
+    private function filterTopNews($newsList, $userPreferences)
+    {
+        if (empty($newsList) || empty($userPreferences)) {
+            return [];
+        }
+
+        $tfidf = new TfidfTransformer();
+        $cosine = new Cosine();
+
+        // Konversi berita ke array kata (judul + deskripsi)
+        $newsTexts = array_map(
+            function ($news) {
+                $text = strtolower(($news['title'] ?? '') . ' ' . ($news['description'] ?? ''));
+                return array_values(array_filter(explode(' ', $text)));
+            },
+            $newsList
+        );
+
+        // Konversi preferensi user ke array kata
+        $userPrefText = array_values(array_filter(explode(' ', strtolower(implode(' ', $userPreferences ?? [])))));
+
+        // Jika preferensi user terlalu sedikit, tambahkan default keyword
+        if (count($userPrefText) < 2) {
+            $userPrefText = ['news', 'update']; // Kata default jika preferensi user terlalu sedikit
+        }
+
+        // Gabungkan user preferences dengan berita
+        $corpus = array_merge([$userPrefText], $newsTexts);
+
+        // Debug: Periksa apakah corpus valid
+        if (count($corpus) < 2) {
+            dd("Error: Corpus kurang dari 2 elemen!", $corpus);
+        }
+
+        // Pastikan setiap elemen di corpus berbentuk array
+        foreach ($corpus as $index => $doc) {
+            if (!is_array($doc)) {
+                dd("Error: Elemen corpus bukan array!", $index, $doc, $corpus);
+            }
+        }
+
+        // Cek apakah ada sub-array kosong
+        foreach ($corpus as $index => $item) {
+            if (!is_array($item) || count($item) < 2) {
+                dd("Error: Sub-array kosong atau hanya punya 1 elemen di indeks $index", $corpus);
+            }
+        }
+
+        if (!isset($corpus[2])) {
+            dd("Error: Undefined array key 2! Corpus terlalu sedikit.", $corpus);
+        }
+
+        // Pastikan corpus memiliki minimal 2 dokumen sebelum transformasi
+        $tfidf->fit($corpus);
+        $tfidf->transform($corpus);
+
+        // Ambil vektor user setelah transformasi
+        $userVector = array_shift($corpus);
+
+        if (empty($userVector)) {
+            dd("Error: userVector kosong setelah array_shift()", $userVector, $corpus);
+        }
+
+        // Reset indeks corpus agar sesuai dengan newsList
+        $corpus = array_values($corpus);
+
+        // Debug: Periksa kesesuaian panjang array
+        if (count($corpus) !== count($newsList)) {
+            dd("Error: Panjang corpus tidak sesuai dengan newsList!", count($corpus), count($newsList), $corpus, $newsList);
+        }
+
+        $scores = [];
+
+        foreach ($corpus as $index => $newsVector) {
+            // Pastikan indeks ada sebelum mengakses newsList
+            if (!isset($newsList[$index])) {
+                dd("Error: Index $index tidak ada di newsList!", $index, $newsList);
+            }
+
+            $scores[] = [
+                'news' => $newsList[$index],
+                'similarity' => 1 - $cosine->distance($userVector, $newsVector)
+            ];
+        }
+
+        // Urutkan berdasarkan similarity score tertinggi
+        usort($scores, fn($a, $b) => $b['similarity'] <=> $a['similarity']);
+
+        return array_slice(array_column($scores, 'news'), 0, 10);
+    }
+
     public function index()
     {
         $cacheKeyLatest = 'news_latest';
@@ -20,6 +147,11 @@ class NewsController extends Controller
         $cacheTime = now()->addMinutes(120);
         $apiKey = env('API_KEY');
 
+        // Cek apakah user login dan sudah lebih dari 5 hari
+        $user = Auth::user();
+        $isNewUser = !$user || Carbon::parse($user->created_at)->diffInDays(now()) < 5;
+
+        // Ambil berita terbaru
         if (Cache::has($cacheKeyLatest)) {
             $berita_terbaru = Cache::get($cacheKeyLatest);
         } else {
@@ -36,27 +168,33 @@ class NewsController extends Controller
             Cache::put($cacheKeyLatest, $berita_terbaru, $cacheTime);
         }
 
-        if (Cache::has($cacheKeyTrending)) {
-            $berita_trending = Cache::get($cacheKeyTrending);
+        if ($isNewUser) {
+            // Jika user baru (<5 hari) atau belum login, tampilkan berita trending
+            if (Cache::has($cacheKeyTrending)) {
+                $berita_trending = Cache::get($cacheKeyTrending);
+            } else {
+                $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
+                    'q' => null,
+                    'language' => 'en',
+                    'pageSize' => 20,
+                    'page' => request('page', 1),
+                    'apiKey' => $apiKey
+                ]);
+
+                $berita_trending = $responseTrending->successful() ? $responseTrending->json()['articles'] : [];
+                Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
+            }
+
+            return view('home', compact('berita_terbaru', 'berita_trending'));
         } else {
-            $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
-                'q' => null,
-                'language' => 'en',
-                'pageSize' => 20,
-                'page' => request('page', 1),
-                'apiKey' => $apiKey
-            ]);
-
-            $berita_trending = $responseTrending->successful() ? $responseTrending->json()['articles'] : [];
-            Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
+            // Jika user sudah > 5 hari, tampilkan berita rekomendasi
+            $berita_rekomendasi = $this->recommendNews($user);
+            return view('home', compact('berita_terbaru', 'berita_rekomendasi'));
         }
-
-        return view('home', compact('berita_terbaru', 'berita_trending'));
     }
 
     public function news($params, Request $request)
     {
-
         $page = $request->query('page', 1);
         $cacheKey = "news_{$params}_page_{$page}";
         $cacheTime = now()->addMinutes(120);

@@ -13,6 +13,11 @@
                 <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500" >&larr; kembali</a>
                 <div class="container grid grid-cols-1 gap-4 ">
                     <h2 class="pt-10">Edit Profile</h2>
+                            @if (session('success'))
+                                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative max-w-md" role="alert">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
                     <form action={{ route('edit.profile') }} method="POST">
                         @csrf
                         <div class="grid grid-cols-2 gap-x-16 pb-10">
@@ -23,7 +28,7 @@
                                     class="w-full rounded-lg border-gray-200 p-3 text-sm"
                                     placeholder="Name"
                                     name="name"
-                                    value={{$user->name}}
+                                    value="{{$user->name}}"
                                     type="text"
                                     id="name"
                                     />

@@ -1,11 +1,35 @@
 <?php
 
+use App\Models\User;
 use App\Models\User_interactions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\NewsController;
+use Laravel\Socialite\Facades\Socialite;
 use App\Http\Controllers\RecommendationController;
+
+// login google
+Route::get('/auth/google', function () {
+    return Socialite::driver('google')->redirect();
+});
+
+Route::get('/auth/google/callback', function () {
+    $googleUser = Socialite::driver('google')->stateless()->user();
+
+    $user = User::updateOrCreate(
+        ['email' => $googleUser->getEmail()],
+        [
+            'name' => $googleUser->getName(),
+            'google_id' => $googleUser->getId(),
+        ]
+    );
+
+    Auth::login($user);
+
+    return redirect('/');
+});
+// login google
 
 Route::get('/', [NewsController::class, 'index'])->name('home');
 

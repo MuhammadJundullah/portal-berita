@@ -43,6 +43,18 @@
                             Register here
                         </button>
                     </p>
+                    <div class="mt-4 text-center border-t border-gray-300 pt-4">
+                        <a href="{{ url('/auth/google') }}" class="btn btn-danger flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" viewBox="0 0 48 48">
+                                <path fill="#EA4335" d="M24 9.5c3.54 0 6.29 1.22 8.18 2.24l6.08-6.08C34.92 2.92 30.06 1 24 1 14.73 1 7.02 6.48 3.47 14.26l7.14 5.53C12.5 14.1 17.77 9.5 24 9.5z"/>
+                                <path fill="#4285F4" d="M46.5 24.5c0-1.63-.15-3.22-.42-4.75H24v9.5h12.7c-.55 2.95-2.18 5.45-4.63 7.12l7.14 5.53C43.98 38.52 46.5 31.92 46.5 24.5z"/>
+                                <path fill="#FBBC05" d="M10.61 28.74c-.75-2.22-1.17-4.58-1.17-7.24s.42-5.02 1.17-7.24L3.47 8.74C1.26 12.48 0 17.05 0 22s1.26 9.52 3.47 13.26l7.14-5.53z"/>
+                                <path fill="#34A853" d="M24 46c6.06 0 11.18-2.02 14.91-5.48l-7.14-5.53c-2.02 1.36-4.56 2.16-7.77 2.16-6.23 0-11.5-4.6-13.39-10.79l-7.14 5.53C7.02 41.52 14.73 46 24 46z"/>
+                                <path fill="none" d="M0 0h48v48H0z"/>
+                            </svg>
+                            Login dengan Google
+                        </a>
+                    </div>
                 </div>
             </main>
         </div>

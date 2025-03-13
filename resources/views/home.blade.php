@@ -139,6 +139,7 @@
                         </article>
                         @endforeach
                     </div>
+                    
                     <p class="text-md hover:text-slate-500 my-2 text-black transition" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
 
                     {{-- <div class="mt-4">
@@ -216,7 +217,7 @@
     @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
         <div class="rounded-lg bg-gray-200 mt-7">
             <div class="p-10">
-                <p class="my-5 text-xl fw-bold">Berita Trending</p>
+                <p class="my-5 text-xl fw-bold">Berita Rekomendasi Untuk Anda</p>
                 <div class="container flex gap-4 overflow-x-auto max-w-screen max-h-full">
                     @foreach ($berita_trending as $item)            
                         <article class="w-96 flex-shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">

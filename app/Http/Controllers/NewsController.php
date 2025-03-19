@@ -70,38 +70,15 @@ class NewsController extends Controller
         // Konversi preferensi user ke array kata
         $userPrefText = array_values(array_filter(explode(' ', strtolower(implode(' ', $userPreferences ?? [])))));
 
-        // Jika preferensi user terlalu sedikit, tambahkan default keyword
-        if (count($userPrefText) < 2) {
-            $userPrefText = ['news', 'update']; // Kata default jika preferensi user terlalu sedikit
-        }
-
         // Gabungkan user preferences dengan berita
         $corpus = array_merge([$userPrefText], $newsTexts);
 
-        // Debug: Periksa apakah corpus valid
-        if (count($corpus) < 2) {
-            dd("Error: Corpus kurang dari 2 elemen!", $corpus);
-        }
-
-        // Pastikan setiap elemen di corpus berbentuk array
-        foreach ($corpus as $index => $doc) {
-            if (!is_array($doc)) {
-                dd("Error: Elemen corpus bukan array!", $index, $doc, $corpus);
-            }
-        }
-
-        // Cek apakah ada sub-array kosong
-        foreach ($corpus as $index => $item) {
-            if (!is_array($item) || count($item) < 2) {
-                dd("Error: Sub-array kosong atau hanya punya 1 elemen di indeks $index", $corpus);
-            }
-        }
-
-        if (!isset($corpus[2])) {
-            dd("Error: Undefined array key 2! Corpus terlalu sedikit.", $corpus);
-        }
+        array_shift($corpus);
+        $corpus = array_values($corpus);
 
         // Pastikan corpus memiliki minimal 2 dokumen sebelum transformasi
+        dd(count($newsList), count($corpus), $newsList, $corpus);
+
         $tfidf->fit($corpus);
         $tfidf->transform($corpus);
 

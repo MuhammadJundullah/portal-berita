@@ -90,7 +90,7 @@
                         @foreach ($berita_trending as $item)            
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
-                            <a href={{ $item['url'] }}>
+                            <a href={{ $item['url'] }} target="_blank">
                                 <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
@@ -106,7 +106,7 @@
                                 {{ $item['description'] }}
                             </p>
 
-                            <a href={{ $item['url'] }} target='_blank' class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+                            <a href={{ $item['url'] }} target="_blank" class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
                                 Find out more
                                 <span aria-hidden="true" class="block transition-all group-hover:ms-0.5 rtl:rotate-180">
                                     &rarr;
@@ -159,7 +159,7 @@
                     @foreach ($berita_terbaru as $item)            
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
-                            <a href={{ $item['url'] }}>
+                            <a href={{ $item['url'] }} target="_blank">
                                 <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
@@ -175,7 +175,7 @@
                                 {{ $item['description'] }}
                             </p>
 
-                            <a href={{ $item['url'] }} target='_blank' class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+                            <a href={{ $item['url'] }} target="_blank" class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
                                 Find out more
                                 <span aria-hidden="true" class="block transition-all group-hover:ms-0.5 rtl:rotate-180">
                                     &rarr;

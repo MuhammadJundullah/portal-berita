@@ -2,133 +2,58 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\News;
 use Illuminate\Http\Request;
 use jcobhams\NewsApi\NewsApi;
 use Illuminate\Support\Carbon;
-use Phpml\Math\Distance\Cosine;
 use App\Models\User_interactions;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
-use Phpml\FeatureExtraction\TfIdfTransformer;
 
 class NewsController extends Controller
 {
-    private function recommendNews($user)
+    private function fetchLatestNews()
     {
-        $userPreferences = json_decode($user->preferences, true);
-        if (!$userPreferences) {
-            return [];
-        }
-
-        $cacheKey = 'news_recommendation_' . request('page', 1);
-        $cacheTime = now()->addMinutes(120);
-        $apiKey = env('API_KEY');
-
-        if (Cache::has($cacheKey)) {
-            return Cache::get($cacheKey);
-        }
-
-        $response = Http::get("https://newsapi.org/v2/everything", [
-            'q' => implode(' OR ', $userPreferences),
-            'language' => 'en',
-            'sortBy' => 'publishedAt',
-            'pageSize' => 50,
-            'page' => request('page', 1),
-            'apiKey' => $apiKey
+        $apiKey = env('API_KEY'); // Simpan API Key di .env
+        $response = Http::get("https://newsapi.org/v2/top-headlines", [
+            'country' => 'us', // Bisa disesuaikan dengan lokasi yang diinginkan
+            'apiKey' => $apiKey,
+            'pageSize' => 10, // Ambil 10 berita terbaru
         ]);
 
-        $newsList = $response->successful() ? $response->json()['articles'] : [];
-
-        if (count($newsList) > 10) {
-            $newsList = $this->filterTopNews($newsList, $userPreferences);
+        if ($response->successful()) {
+            return $response->json()['articles'];
         }
 
-        Cache::put($cacheKey, $newsList, $cacheTime);
-        return $newsList;
+        return [];
     }
 
-    private function filterTopNews($newsList, $userPreferences)
+    private function fetchTrendingNews()
     {
-        if (empty($newsList) || empty($userPreferences)) {
-            return [];
+        $apiKey = env('API_KEY'); // Simpan API Key di .env
+        $response = Http::get("https://newsapi.org/v2/everything", [
+            'q' => 'trending',
+            'sortBy' => 'popularity',
+            'apiKey' => $apiKey,
+            'pageSize' => 10, // Ambil 10 berita trending
+        ]);
+
+        if ($response->successful()) {
+            return $response->json()['articles'];
         }
 
-        $tfidf = new TfidfTransformer();
-        $cosine = new Cosine();
-
-        // Konversi berita ke array kata (judul + deskripsi)
-        $newsTexts = array_map(
-            function ($news) {
-                $text = strtolower(($news['title'] ?? '') . ' ' . ($news['description'] ?? ''));
-                return array_values(array_filter(explode(' ', $text)));
-            },
-            $newsList
-        );
-
-        // Konversi preferensi user ke array kata
-        $userPrefText = array_values(array_filter(explode(' ', strtolower(implode(' ', $userPreferences ?? [])))));
-
-        // Gabungkan user preferences dengan berita
-        $corpus = array_merge([$userPrefText], $newsTexts);
-
-        array_shift($corpus);
-        $corpus = array_values($corpus);
-
-        // Pastikan corpus memiliki minimal 2 dokumen sebelum transformasi
-        dd(count($newsList), count($corpus), $newsList, $corpus);
-
-        $tfidf->fit($corpus);
-        $tfidf->transform($corpus);
-
-        // Ambil vektor user setelah transformasi
-        $userVector = array_shift($corpus);
-
-        if (empty($userVector)) {
-            dd("Error: userVector kosong setelah array_shift()", $userVector, $corpus);
-        }
-
-        // Reset indeks corpus agar sesuai dengan newsList
-        $corpus = array_values($corpus);
-
-        // Debug: Periksa kesesuaian panjang array
-        if (count($corpus) !== count($newsList)) {
-            dd("Error: Panjang corpus tidak sesuai dengan newsList!", count($corpus), count($newsList), $corpus, $newsList);
-        }
-
-        $scores = [];
-
-        foreach ($corpus as $index => $newsVector) {
-            // Pastikan indeks ada sebelum mengakses newsList
-            if (!isset($newsList[$index])) {
-                dd("Error: Index $index tidak ada di newsList!", $index, $newsList);
-            }
-
-            $scores[] = [
-                'news' => $newsList[$index],
-                'similarity' => 1 - $cosine->distance($userVector, $newsVector)
-            ];
-        }
-
-        // Urutkan berdasarkan similarity score tertinggi
-        usort($scores, fn($a, $b) => $b['similarity'] <=> $a['similarity']);
-
-        return array_slice(array_column($scores, 'news'), 0, 10);
+        return [];
     }
 
     public function index()
     {
-        $cacheKeyLatest = 'news_latest';
-        $cacheKeyTrending = 'news_trending_' . request('page', 1);
         $cacheTime = now()->addMinutes(120);
         $apiKey = env('API_KEY');
-
-        // Cek apakah user login dan sudah lebih dari 5 hari
         $user = Auth::user();
-        $isNewUser = !$user || Carbon::parse($user->created_at)->diffInDays(now()) < 5;
+        $userAge = $user ? Carbon::parse($user->created_at)->diffInDays(now()) : 0;
 
-        // Ambil berita terbaru
+        // Ambil berita terbaru dari News API
+        $cacheKeyLatest = 'news_latest';
         if (Cache::has($cacheKeyLatest)) {
             $berita_terbaru = Cache::get($cacheKeyLatest);
         } else {
@@ -137,38 +62,49 @@ class NewsController extends Controller
                 'language' => 'en',
                 'sortBy' => 'publishedAt',
                 'pageSize' => 20,
-                'page' => request('page', 1),
                 'apiKey' => $apiKey
             ]);
-
             $berita_terbaru = $responseLatest->successful() ? $responseLatest->json()['articles'] : [];
             Cache::put($cacheKeyLatest, $berita_terbaru, $cacheTime);
         }
 
-        if ($isNewUser) {
-            // Jika user baru (<5 hari) atau belum login, tampilkan berita trending
+        // Ambil berita trending dari News API untuk user baru (akun < 7 hari)
+        $berita_trending = [];
+        if ($userAge < 7) {
+            $cacheKeyTrending = 'news_trending';
             if (Cache::has($cacheKeyTrending)) {
                 $berita_trending = Cache::get($cacheKeyTrending);
             } else {
                 $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
-                    'q' => null,
                     'language' => 'en',
                     'pageSize' => 20,
-                    'page' => request('page', 1),
                     'apiKey' => $apiKey
                 ]);
-
                 $berita_trending = $responseTrending->successful() ? $responseTrending->json()['articles'] : [];
                 Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
             }
-
-            return view('home', compact('berita_terbaru', 'berita_trending'));
-        } else {
-            // Jika user sudah > 5 hari, tampilkan berita rekomendasi
-            $berita_rekomendasi = $this->recommendNews($user);
-            return view('home', compact('berita_terbaru', 'berita_rekomendasi'));
         }
+
+        // Jika user berumur lebih dari 7 hari, gunakan rekomendasi Flask API
+        $berita_rekomendasi = [];
+        if ($user && $userAge >= 7) {
+            $preferences = $user->preferences;
+            $userInteractions = User_interactions::where('user_id', $user->id)->pluck('news_title');
+
+            $response = Http::post('http://localhost:5000/recommend_news', [
+                'preferences' => $preferences,
+                'interactions' => $userInteractions->toArray(),
+            ]);
+
+            if ($response->successful()) {
+
+                $berita_rekomendasi = $response->json();
+            }
+        }
+
+        return view('home', compact('berita_terbaru', 'berita_trending', 'berita_rekomendasi', 'userAge'));
     }
+
 
     public function news($params, Request $request)
     {

@@ -1,3 +1,4 @@
+{{dd($berita_trending)}}
 @extends('Components.layout')
 
 @section('content')
@@ -31,51 +32,58 @@
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
                 <div class="m-10">
                     <p class="my-5 text-xl fw-bold">Berita Menarik Untuk Anda</p>
-                    <div class="container grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 ">
+                    <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
+                        @foreach ($berita_rekomendasi as $item)            
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
-                            <span class="inline-block rounded-sm bg-blue-600 p-2 text-white">
-                                <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="size-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                >
-                                <path d="M12 14l9-5-9-5-9 5 9 5z" />
-                                <path
-                                    d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-                                />
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"
-                                />
-                                </svg>
-                            </span>
-
-                            <a href="#">
-                                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+                            <a href={{ $item['url'] }} target="_blank">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
+                                <h3 class="mt-2 text-lg font-medium text-gray-900">
+                                    {{ $item['title'] }}
                                 </h3>
                             </a>
+                            <ul class="flex gap-3 text-slate-400">
+                                <li>{{ $item['source']['name'] }}</li>
+                                {{-- <li>| {{ $item['author'] }}</li> --}}
+                                <li class="fw-lighter">| {{ \Carbon\Carbon::parse($item['publishedAt'])->diffForHumans() }}</li>
+                            </ul>
 
                             <p class="mt-2 line-clamp-3 text-sm/relaxed text-gray-500">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Recusandae dolores, possimus pariatur
-                                animi temporibus nesciunt praesentium dolore sed nulla ipsum eveniet corporis quidem, mollitia
-                                itaque minus soluta, voluptates neque explicabo tempora nisi culpa eius atque dignissimos.
-                                Molestias explicabo corporis voluptatem?
+                                {{ $item['description'] }}
                             </p>
 
-                            <a href="#" class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+                            <a href={{ $item['url'] }} target="_blank" class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
                                 Find out more
-
                                 <span aria-hidden="true" class="block transition-all group-hover:ms-0.5 rtl:rotate-180">
-                                &rarr;
+                                    &rarr;
                                 </span>
                             </a>
+
+                            <!-- Tombol Like dan Share -->
+                             <div class="mt-4 flex items-center gap-4">
+
+                            <!-- Tombol Like -->
+                            <button data-news-id="{{ $item['title'] }}" 
+                                onclick="sendInteraction('{{ addslashes($item['title']) }}', 'like', this)" 
+                                class="like-button flex items-center gap-2 text-gray-600 hover:text-red-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 14.7v5.3a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V12a2 2 0 0 0-2-2h-3.6l.6-4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v4H8a2 2 0 0 0-2 2v2.7z"/>
+                                </svg>
+                                Like
+                            </button>
+
+
+                                <!-- Tombol Share -->
+                            <button onclick="sharePost('{{ $item['url'] }}', '{{ addslashes($item['title']) }}', this)" 
+                                class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 5h6m0 0v6m0-6L10 16l-4-4-6 6"/>
+                                </svg>
+                                Share
+                            </button>
+                            </div>
                         </article>
+                        @endforeach
                     </div>
                 </div>
             </div>
@@ -214,7 +222,7 @@
 
     {{-- berita trending untuk pengguna terauthentikasi atau pengguna lama --}}
 
-    @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
+    {{-- @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
         <div class="rounded-lg bg-gray-200 mt-7">
             <div class="p-10">
                 <p class="my-5 text-xl fw-bold">Berita Rekomendasi Untuk Anda</p>
@@ -270,7 +278,7 @@
                 </div>
             </div>
         </div>
-    @endif
+    @endif --}}
 </div>
 @endsection
 

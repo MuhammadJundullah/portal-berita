@@ -1,4 +1,20 @@
-{{dd($berita_trending)}}
+{{-- {{dd($berita_trending)}} --}}
+
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+
+    <style>
+        .eb-garamond-custom {
+            font-family: "EB Garamond", serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+        }
+    </style>
+</head>
+
 @extends('Components.layout')
 
 @section('content')
@@ -31,7 +47,7 @@
         @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
                 <div class="m-10">
-                    <p class="my-5 text-xl fw-bold">Berita Menarik Untuk Anda</p>
+                    <p class="my-5 text-xl fw-bold eb-garamond-custom">Berita Menarik Untuk Anda</p>
                     <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_rekomendasi as $item)            
                         <article
@@ -148,7 +164,7 @@
                         @endforeach
                     </div>
                     
-                    <p class="text-md hover:text-slate-500 my-2 text-black transition" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
+                    <p class="text-md hover:text-slate-500 my-2 text-black transition eb-garamond-custom" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
 
                     {{-- <div class="mt-4">
                         {{ $berita_trending->links() }}
@@ -162,7 +178,7 @@
 
         <div class="rounded-lg bg-gray-200">
             <div class="m-10">
-                <p class="my-5 text-xl fw-bold">Berita Terbaru</p>
+                <p class="my-5 text-xl fw-bold eb-garamond-custom">Berita Terbaru</p>
                 <div class="h-screen container grid grid-cols-1 gap-4 overflow-y-auto">
                     @foreach ($berita_terbaru as $item)            
                         <article
@@ -215,36 +231,37 @@
                         </article>
                     @endforeach
                 </div>
-                <p class="text-md hover:text-slate-500 my-2 text-black transition" ><a href="/news/newest?page=1">lihat berita terbaru lainnya &rarr;</a></p>
+                <p class="text-md hover:text-slate-500 my-2 text-black transition eb-garamond-custom" ><a href="/news/newest?page=1">lihat berita terbaru lainnya &rarr;</a></p>
             </div>
         </div>
     </div>
 
-    {{-- berita trending untuk pengguna terauthentikasi atau pengguna lama --}}
+    {{-- berita trending untuk pengguna lama --}}
 
-    {{-- @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
+    @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
         <div class="rounded-lg bg-gray-200 mt-7">
             <div class="p-10">
-                <p class="my-5 text-xl fw-bold">Berita Rekomendasi Untuk Anda</p>
-                <div class="container flex gap-4 overflow-x-auto max-w-screen max-h-full">
-                    @foreach ($berita_trending as $item)            
-                        <article class="w-96 flex-shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
-                            <a href="#">
-                                <h3 class="mt-0.5 text-lg font-medium text-gray-900">
-                                    {{ $item->headline }}
+                <p class="my-5 text-xl fw-bold eb-garamond-custom">Berita Trending</p>
+                <div class="container flex gap-6 overflow-x-auto max-w-screen max-h-full">
+                    @foreach ($berita_trending as $item)
+                        <article
+                            class="min-w-[400px] rounded-lg border border-gray-100 bg-white p-6 shadow-xs transition hover:shadow-lg">
+                            <a href={{ $item['url'] }} target="_blank">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg w-full h-48 object-cover">
+                                <h3 class="mt-4 text-lg font-medium text-gray-900">
+                                    {{ $item['title'] }}
                                 </h3>
                             </a>
-                            <ul class="flex gap-3 text-slate-400">
-                                <li>{{ $item->category }}</li>
-                                <li>| {{ $item->authors }}</li>
-                                <li class="fw-lighter">| {{ \Carbon\Carbon::parse($item->date)->diffForHumans() }}</li>
+                            <ul class="flex gap-3 text-slate-400 mt-2">
+                                <li>{{ $item['source']['name'] }}</li>
+                                <li class="fw-lighter">| {{ \Carbon\Carbon::parse($item['publishedAt'])->diffForHumans() }}</li>
                             </ul>
 
-                            <p class="mt-2 line-clamp-3 text-sm/relaxed text-gray-500">
-                                {{ $item->short_description }}
+                            <p class="mt-4 line-clamp-3 text-sm/relaxed text-gray-500">
+                                {{ $item['description'] }}
                             </p>
 
-                            <a href="{{ $item->link }}" target='_blank' class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
+                            <a href={{ $item['url'] }} target="_blank" class="group mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-600">
                                 Find out more
                                 <span aria-hidden="true" class="block transition-all group-hover:ms-0.5 rtl:rotate-180">
                                     &rarr;
@@ -252,7 +269,7 @@
                             </a>
 
                             <!-- Tombol Like dan Share -->
-                            <div class="mt-4 flex items-center gap-4">
+                            <div class="mt-6 flex items-center gap-4">
 
                             <!-- Tombol Like -->
                             <button data-news-id="{{ $item['title'] }}" 
@@ -264,8 +281,8 @@
                                 Like
                             </button>
 
-                            <!-- Tombol Share -->
-                            <button onclick="sharePost('{{ $item->link }}', {{ $item->id }}, this)" 
+                                <!-- Tombol Share -->
+                             <button onclick="sharePost('{{ $item['url'] }}', '{{ addslashes($item['title']) }}', this)" 
                                 class="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 5h6m0 0v6m0-6L10 16l-4-4-6 6"/>
@@ -276,9 +293,10 @@
                         </article>
                     @endforeach
                 </div>
+                <p class="text-md hover:text-slate-500 my-2 text-black transition eb-garamond-custom" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
             </div>
         </div>
-    @endif --}}
+    @endif
 </div>
 @endsection
 

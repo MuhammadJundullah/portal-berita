@@ -68,21 +68,18 @@ class NewsController extends Controller
             Cache::put($cacheKeyLatest, $berita_terbaru, $cacheTime);
         }
 
-        // Ambil berita trending dari News API untuk user baru (akun < 7 hari)
-        $berita_trending = [];
-        if ($userAge < 7) {
-            $cacheKeyTrending = 'news_trending';
-            if (Cache::has($cacheKeyTrending)) {
-                $berita_trending = Cache::get($cacheKeyTrending);
-            } else {
-                $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
-                    'language' => 'en',
-                    'pageSize' => 20,
-                    'apiKey' => $apiKey
-                ]);
-                $berita_trending = $responseTrending->successful() ? $responseTrending->json()['articles'] : [];
-                Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
-            }
+        // Ambil berita trending dari News API
+        $cacheKeyTrending = 'news_trending';
+        if (Cache::has($cacheKeyTrending)) {
+            $berita_trending = Cache::get($cacheKeyTrending);
+        } else {
+            $responseTrending = Http::get("https://newsapi.org/v2/top-headlines", [
+                'language' => 'en',
+                'pageSize' => 20,
+                'apiKey' => $apiKey
+            ]);
+            $berita_trending = $responseTrending->successful() ? $responseTrending->json()['articles'] : [];
+            Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
         }
 
         // Jika user berumur lebih dari 7 hari, gunakan rekomendasi Flask API
@@ -97,7 +94,6 @@ class NewsController extends Controller
             ]);
 
             if ($response->successful()) {
-
                 $berita_rekomendasi = $response->json();
             }
         }

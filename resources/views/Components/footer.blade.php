@@ -1,40 +1,13 @@
 <div>
     <footer class="bg-gray-800">
-      <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
-        <div class="flex justify-center text-teal-100">
+      <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
+        <div class="flex justify-center text-teal-100 -py-20">
           <img src="{{ asset('img/nobck.png') }}" alt="NewsToday.com">
         </div>
 
         <p class="mx-auto max-w-md text-center leading-relaxed text-gray-100">
-          Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt consequuntur amet culpa cum
-          itaque neque.
+          News Today is your trusted source for the latest news, updates, and insights from around the world. Stay informed and connected with us.
         </p>
-
-        <ul class="mt-12 flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-12">
-          <li>
-            <a class="text-gray-100 transition hover:text-gray-100/75" href="#"> About </a>
-          </li>
-
-          <li>
-            <a class="text-gray-100 transition hover:text-gray-100/75" href="#"> Careers </a>
-          </li>
-
-          <li>
-            <a class="text-gray-100 transition hover:text-gray-100/75" href="#"> History </a>
-          </li>
-
-          <li>
-            <a class="text-gray-100 transition hover:text-gray-100/75" href="#"> Services </a>
-          </li>
-
-          <li>
-            <a class="text-gray-100 transition hover:text-gray-100/75" href="#"> Projects </a>
-          </li>
-
-          <li>
-            <a class="text-gray-100 transition hover:text-gray-100/75" href="#"> Blog </a>
-          </li>
-        </ul>
 
         <ul class="mt-12 flex justify-center gap-6 md:gap-8">
           <li>

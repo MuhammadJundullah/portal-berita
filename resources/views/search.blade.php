@@ -12,8 +12,8 @@
     <div class="grid grid-cols-1 gap-4">
         <div class="rounded-lg bg-gray-200 lg:col-span-2 mt-5">
             <div class="m-10">
-                <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500" >&larr; kembali</a>
-                <p class="my-5 text-xl fw-bold">Menampilkan pencarian untuk " {{ $q }} "</p>
+                <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500 StyreneB" >&larr; kembali</a>
+                <p class="my-5 text-xl fw-bold StyreneB">Menampilkan pencarian untuk " {{ $q }} "</p>
                 <div class="container grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 ">
                     @foreach ($news['articles'] as $item)                        
                         <article
@@ -73,7 +73,7 @@
                 @if(request('page', 1) > 1)
                     &larr; <a href="?query={{ request('query') }}&page={{ request('page', 1) - 1 }}">Previous</a> |
                 @endif
-                    <a href="?query={{ request('query') }}&page={{ request('page', 1) + 1 }}">Next</a> &rarr;
+                    <a href="?query={{ request('query') }}&page={{ request('page', 1) + 1 }}">Next Page</a> &rarr;
             </div>
 
             </div>

@@ -110,6 +110,12 @@
                             Register
                         </button>
                     </form>
+                     <p class="mt-4 text-sm text-gray-600 text-center">
+                        Already have an account?
+                        <button class="text-blue-500 hover:underline" onclick="switchToLogin()">
+                            Login here
+                        </button>
+                    </p>
                 </div>
             </main>
         </div>

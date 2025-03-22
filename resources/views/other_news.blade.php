@@ -1,5 +1,3 @@
-{{-- {{dd($berita)}} --}}
-
 @extends('Components.layout')
 
 @section('content')
@@ -14,8 +12,8 @@
     <div class=" grid grid-cols-1 gap-4">
         <div class="rounded-lg bg-gray-200 lg:col-span-2">
             <div class="m-10">
-                <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500">&larr; kembali</a>
-                <p class="my-5 text-xl fw-bold">{{ucfirst($params)}} news.</p>
+                <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500 StyreneB">&larr; kembali</a>
+                <p class="my-5 text-xl fw-bold StyreneB">{{ucfirst($params)}} news.</p>
                 <div class="container grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 ">
                     @foreach ($berita as $item)
                         <article
@@ -77,7 +75,6 @@
 
 <!-- Script  -->
 <script>
-
     // check like status
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".like-button").forEach(button => {

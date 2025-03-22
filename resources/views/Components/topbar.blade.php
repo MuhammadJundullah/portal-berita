@@ -1,9 +1,9 @@
     <div class="w-full rounded-lg z-10 bg-cover bg-center">
         <ul class="flex justify-between items-center">
-            <li class="text-white">{{ date('l, d F Y') }}</li>
+            <li class="text-white StyreneB">{{ date('l, d F Y') }}</li>
             <li> 
                 @if(Auth::check())
-                    <h2 class="text-white tracking-[.25em] italic">Welcome {{ Auth::user()->name }} ! happy reading and have a nice day.</h2>
+                    <h2 class="text-white tracking-[.25em] italic StyreneB">Welcome {{ Auth::user()->name }} ! happy reading and have a nice day.</h2>
                 @endif
             </li>
             <div class="relative pt-4">
@@ -11,7 +11,7 @@
                     <input
                         type="text"
                         name="query"
-                        class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-xs"
+                        class="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-xs StyreneB"
                         placeholder="Find News"
                         value="{{ request('query') }}"
                     />

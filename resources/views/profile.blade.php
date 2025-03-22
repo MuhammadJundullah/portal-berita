@@ -5,14 +5,14 @@
 <!-- Modal -->
 @include('Components.login')
 
-<div class="md:p-10 p-2">
+<div class="md:p-10 p-2 StyreneB">
 
     <div class=" grid grid-cols-1 gap-4">
         <div class="rounded-lg bg-gray-200 lg:col-span-2">
             <div class="m-10">
                 <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500" >&larr; kembali</a>
                 <div class="container grid grid-cols-1 gap-4 ">
-                    <h2 class="pt-10">Edit Profile</h2>
+                    <h2 class="pt-10 StyreneB">Edit Profile</h2>
                             @if (session('success'))
                                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative max-w-md" role="alert">
                                     {{ session('success') }}
@@ -20,7 +20,7 @@
                             @endif
                     <form action={{ route('edit.profile') }} method="POST">
                         @csrf
-                        <div class="grid grid-cols-2 gap-x-16 pb-10">
+                        <div class="grid grid-cols-2 gap-x-16 pb-10 StyreneB">
                             <div class="space-y-10"> 
                                 <div>
                                     <label class="sr-only" for="name">Name</label>
@@ -67,8 +67,8 @@
                                 </div>
                             </div>                  
                             <div>
-                            <h2 class="pb-10">Pick a news category to explore !</h2>
-                                <div class="grid grid-cols-5 gap-4 text-center">
+                            <h2 class="pb-10 StyreneB">Pick a news category to explore !</h2>
+                                <div class="grid grid-cols-5 gap-4 text-center StyreneB">
                                    @foreach ($news_category as $item)
                                         @php
                                             $isChecked = is_array($user_preferences) && in_array($item->name, $user_preferences);

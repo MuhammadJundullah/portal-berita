@@ -36,7 +36,7 @@ class AuthController extends Controller
             $request->session()->regenerate();
             return redirect()->back();
         } else {
-            return redirect()->back()->withErrors(['error' => 'Password salah atau akun tidak ditemukan!']);
+            return redirect()->back()->withErrors(['error' => 'Username dan Password tidak valid !']);
         }
     }
 

@@ -1,20 +1,3 @@
-{{-- {{dd($berita_trending)}} --}}
-
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
-
-    <style>
-        .eb-garamond-custom {
-            font-family: "EB Garamond", serif;
-            font-optical-sizing: auto;
-            font-weight: 400;
-            font-style: normal;
-        }
-    </style>
-</head>
-
 @extends('Components.layout')
 
 @section('content')
@@ -47,7 +30,7 @@
         @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
                 <div class="m-10">
-                    <p class="my-5 text-xl fw-bold eb-garamond-custom">Berita Menarik Untuk Anda</p>
+                    <p class="my-5 text-xl fw-bold ">Berita Menarik Untuk Anda</p>
                     <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_rekomendasi as $item)            
                         <article
@@ -109,7 +92,7 @@
 
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
                 <div class="m-10">
-                    <p class="my-5 text-xl fw-bold">Berita Trending</p>
+                    <p class="my-5 text-xl fw-bold ">Berita Trending</p>
                     <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_trending as $item)            
                         <article
@@ -164,7 +147,7 @@
                         @endforeach
                     </div>
                     
-                    <p class="text-md hover:text-slate-500 my-2 text-black transition eb-garamond-custom" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
+                    <p class="text-md hover:text-slate-500 my-2 text-black transition " ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
 
                     {{-- <div class="mt-4">
                         {{ $berita_trending->links() }}
@@ -178,7 +161,7 @@
 
         <div class="rounded-lg bg-gray-200">
             <div class="m-10">
-                <p class="my-5 text-xl fw-bold eb-garamond-custom">Berita Terbaru</p>
+                <p class="my-5 text-xl fw-bold ">Berita Terbaru</p>
                 <div class="h-screen container grid grid-cols-1 gap-4 overflow-y-auto">
                     @foreach ($berita_terbaru as $item)            
                         <article
@@ -231,7 +214,7 @@
                         </article>
                     @endforeach
                 </div>
-                <p class="text-md hover:text-slate-500 my-2 text-black transition eb-garamond-custom" ><a href="/news/newest?page=1">lihat berita terbaru lainnya &rarr;</a></p>
+                <p class="text-md hover:text-slate-500 my-2 text-black transition " ><a href="/news/newest?page=1">lihat berita terbaru lainnya &rarr;</a></p>
             </div>
         </div>
     </div>
@@ -241,7 +224,7 @@
     @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
         <div class="rounded-lg bg-gray-200 mt-7">
             <div class="p-10">
-                <p class="my-5 text-xl fw-bold eb-garamond-custom">Berita Trending</p>
+                <p class="my-5 text-xl fw-bold ">Berita Trending</p>
                 <div class="container flex gap-6 overflow-x-auto max-w-screen max-h-full">
                     @foreach ($berita_trending as $item)
                         <article
@@ -293,7 +276,7 @@
                         </article>
                     @endforeach
                 </div>
-                <p class="text-md hover:text-slate-500 my-2 text-black transition eb-garamond-custom" ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
+                <p class="text-md hover:text-slate-500 my-2 text-black transition " ><a href="/news/trending?page=1">lihat berita trending lainnya &rarr;</a></p>
             </div>
         </div>
     @endif
@@ -301,7 +284,6 @@
 @endsection
 
 <script>
-
     // check like status
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".like-button").forEach(button => {
@@ -376,8 +358,6 @@
             alert("Sharing not supported in this browser.");
         }
     }
-
-
     // show register modal
     function toggleRegisterModal() {
         let modal = document.getElementById("registerModal");
@@ -400,5 +380,11 @@
     function switchToRegister() {
         toggleModal(); 
         toggleRegisterModal(); 
+    }
+
+    // switch to login modal
+    function switchToLogin() {
+        toggleRegisterModal();
+        toggleModal();
     }
 </script>

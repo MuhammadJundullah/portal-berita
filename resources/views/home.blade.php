@@ -92,13 +92,13 @@
 
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
                 <div class="m-10">
-                    <p class="my-5 text-xl fw-bold ">Berita Trending</p>
+                    <p class="my-5 text-xl fw-bold ">Berita Trending </p>
                     <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_trending as $item)            
                         <article
                             class="rounded-lg border border-gray-100 bg-white p-4 shadow-xs transition hover:shadow-lg sm:p-6">
                             <a href={{ $item['url'] }} target="_blank">
-                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg max-h-[250px] w-full">
                                 <h3 class="mt-2 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
                                 </h3>
@@ -230,7 +230,7 @@
                         <article
                             class="min-w-[400px] rounded-lg border border-gray-100 bg-white p-6 shadow-xs transition hover:shadow-lg">
                             <a href={{ $item['url'] }} target="_blank">
-                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg w-full h-48 object-cover">
+                                <img src={{$item['urlToImage'] ?? asset('img/noimage.webp')}} alt={{$item['urlToImage']}} class="rounded-lg max-h-[250px] w-full">
                                 <h3 class="mt-4 text-lg font-medium text-gray-900">
                                     {{ $item['title'] }}
                                 </h3>

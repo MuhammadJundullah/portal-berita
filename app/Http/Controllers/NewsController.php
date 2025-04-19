@@ -12,38 +12,38 @@ use Illuminate\Support\Facades\Cache;
 
 class NewsController extends Controller
 {
-    private function fetchLatestNews()
-    {
-        $apiKey = env('API_KEY'); // Simpan API Key di .env
-        $response = Http::get("https://newsapi.org/v2/top-headlines", [
-            'country' => 'us', // Bisa disesuaikan dengan lokasi yang diinginkan
-            'apiKey' => $apiKey,
-            'pageSize' => 10, // Ambil 10 berita terbaru
-        ]);
+    // private function fetchLatestNews()
+    // {
+    //     $apiKey = env('API_KEY');
+    //     $response = Http::get("https://newsapi.org/v2/top-headlines", [
+    //         'country' => 'us',
+    //         'apiKey' => $apiKey,
+    //         'pageSize' => 10,
+    //     ]);
 
-        if ($response->successful()) {
-            return $response->json()['articles'];
-        }
+    //     if ($response->successful()) {
+    //         return $response->json()['articles'];
+    //     }
 
-        return [];
-    }
+    //     return [];
+    // }
 
-    private function fetchTrendingNews()
-    {
-        $apiKey = env('API_KEY'); // Simpan API Key di .env
-        $response = Http::get("https://newsapi.org/v2/everything", [
-            'q' => 'trending',
-            'sortBy' => 'popularity',
-            'apiKey' => $apiKey,
-            'pageSize' => 10, // Ambil 10 berita trending
-        ]);
+    // private function fetchTrendingNews()
+    // {
+    //     $apiKey = env('API_KEY');
+    //     $response = Http::get("https://newsapi.org/v2/everything", [
+    //         'q' => 'trending',
+    //         'sortBy' => 'popularity',
+    //         'apiKey' => $apiKey,
+    //         'pageSize' => 10,
+    //     ]);
 
-        if ($response->successful()) {
-            return $response->json()['articles'];
-        }
+    //     if ($response->successful()) {
+    //         return $response->json()['articles'];
+    //     }
 
-        return [];
-    }
+    //     return [];
+    // }
 
     public function index()
     {
@@ -154,6 +154,7 @@ class NewsController extends Controller
             ]);
 
             if ($validated['interaction_type'] === 'like') {
+
                 // Cek apakah user sudah like sebelumnya
                 $existingInteraction = User_interactions::where('user_id', Auth::id())
                 ->where('news_title', $validated['news_title'])
@@ -161,10 +162,12 @@ class NewsController extends Controller
                 ->first();
 
                 if ($existingInteraction) {
+
                     // Jika sudah like, hapus dari database (unlike)
                     $existingInteraction->delete();
                     return response()->json(['message' => 'Like removed successfully!', 'status' => 'unliked']);
                 } else {
+
                     // Jika belum, tambahkan like baru
                     User_interactions::create([
                         'news_title' => $validated['news_title'],
@@ -174,6 +177,7 @@ class NewsController extends Controller
                     return response()->json(['message' => 'Like saved successfully!', 'status' => 'liked']);
                 }
             } elseif ($validated['interaction_type'] === 'share') {
+
                 // Simpan share tanpa bisa dihapus
                 User_interactions::create([
                     'news_title' => $validated['news_title'],

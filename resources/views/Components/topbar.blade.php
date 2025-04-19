@@ -1,7 +1,6 @@
     <div class="w-full rounded-lg z-10 bg-cover bg-center">
         <ul class="flex justify-between items-center">
-            <li class="text-white StyreneB">{{ date('l, d F Y') }}</li>
-            <li> 
+            <li class="text-white StyreneB">{{ \Carbon\Carbon::now()->locale('en')->isoFormat('dddd, D MMMM YYYY') }}</li>
                 @if(Auth::check())
                     <h2 class="text-white tracking-[.25em] italic StyreneB">Welcome {{ Auth::user()->name }} ! happy reading and have a nice day.</h2>
                 @endif

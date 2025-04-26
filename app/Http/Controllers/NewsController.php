@@ -12,39 +12,6 @@ use Illuminate\Support\Facades\Cache;
 
 class NewsController extends Controller
 {
-    // private function fetchLatestNews()
-    // {
-    //     $apiKey = env('API_KEY');
-    //     $response = Http::get("https://newsapi.org/v2/top-headlines", [
-    //         'country' => 'us',
-    //         'apiKey' => $apiKey,
-    //         'pageSize' => 10,
-    //     ]);
-
-    //     if ($response->successful()) {
-    //         return $response->json()['articles'];
-    //     }
-
-    //     return [];
-    // }
-
-    // private function fetchTrendingNews()
-    // {
-    //     $apiKey = env('API_KEY');
-    //     $response = Http::get("https://newsapi.org/v2/everything", [
-    //         'q' => 'trending',
-    //         'sortBy' => 'popularity',
-    //         'apiKey' => $apiKey,
-    //         'pageSize' => 10,
-    //     ]);
-
-    //     if ($response->successful()) {
-    //         return $response->json()['articles'];
-    //     }
-
-    //     return [];
-    // }
-
     public function index()
     {
         $cacheTime = now()->addMinutes(120);
@@ -85,22 +52,27 @@ class NewsController extends Controller
         // Jika user berumur lebih dari 7 hari, gunakan rekomendasi Flask API
         $berita_rekomendasi = [];
         if ($user && $userAge >= 7) {
-            $preferences = $user->preferences;
-            $userInteractions = User_interactions::where('user_id', $user->id)->pluck('news_title');
+            $cacheKeyRecommendation = 'news_recommendation_' . $user->id;
+            if (Cache::has($cacheKeyRecommendation)) {
+                $berita_rekomendasi = Cache::get($cacheKeyRecommendation);
+            } else {
+                $preferences = $user->preferences;
+                $userInteractions = User_interactions::where('user_id', $user->id)->pluck('news_title');
 
-            $response = Http::post('http://localhost:5000/recommend_news', [
-                'preferences' => $preferences,
-                'interactions' => $userInteractions->toArray(),
-            ]);
+                $response = Http::post('http://localhost:5000/recommend_news', [
+                    'preferences' => $preferences,
+                    'interactions' => $userInteractions->toArray(),
+                ]);
 
-            if ($response->successful()) {
-                $berita_rekomendasi = $response->json();
+                if ($response->successful()) {
+                    $berita_rekomendasi = $response->json();
+                    Cache::put($cacheKeyRecommendation, $berita_rekomendasi, $cacheTime);
+                }
             }
         }
 
         return view('home', compact('berita_terbaru', 'berita_trending', 'berita_rekomendasi', 'userAge'));
     }
-
 
     public function news($params, Request $request)
     {
@@ -198,23 +170,6 @@ class NewsController extends Controller
             ], 500);
         }
     }
-
-
-    // search old from local database
-    // public function search(Request $request)
-    // {
-    //     $query = $request->input('query'); // Ambil input pencarian dari user
-
-    //     $news = News::when($query, function ($q) use ($query) {
-    //         $q->where('headline', 'like', "%$query%")
-    //             ->orWhere('short_description', 'like', "%$query%");
-    //     })
-    //         ->orderBy('date', 'desc')
-    //         ->take(15)
-    //         ->get();
-
-    //     return view('search', compact('news', 'query'));
-    // }
 
     public function search(Request $request)
     {

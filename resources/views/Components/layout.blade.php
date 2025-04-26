@@ -40,7 +40,7 @@
 
     @include('Components.navbar')
 
-    <div class="content bg-slate-500 StyreneB">
+    <div class="content bg-slate-700 StyreneB">
         @yield('content')
     </div>
 

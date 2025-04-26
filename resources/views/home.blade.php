@@ -283,6 +283,7 @@
 </div>
 @endsection
 
+@if(Auth::check())
 <script>
     // check like status
     document.addEventListener("DOMContentLoaded", function () {
@@ -301,7 +302,7 @@
         });
     });
 
-    // fetch like & share information
+     // fetch like & share information
     function sendInteraction(newsId, type, button) {
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
             toggleModal();
@@ -327,8 +328,7 @@
         .catch(error => console.error('Error:', error));
     }
 
-
-    // share berita dengan sharepost
+     // share berita dengan sharepost
     function sharePost(link, newsTitle, button) {
         if (navigator.share) {
             navigator.share({
@@ -358,33 +358,5 @@
             alert("Sharing not supported in this browser.");
         }
     }
-    // show register modal
-    function toggleRegisterModal() {
-        let modal = document.getElementById("registerModal");
-        modal.classList.toggle("hidden");
-        setTimeout(() => {
-            modal.classList.toggle("opacity-0");
-        }, 10);
-    }
-    
-    // show login modal
-    function toggleModal() {
-        let modal = document.getElementById("loginModal");
-        modal.classList.toggle("hidden");
-        setTimeout(() => {
-            modal.classList.toggle("opacity-0");
-        }, 10);
-    }
-
-    // switch to register modal
-    function switchToRegister() {
-        toggleModal(); 
-        toggleRegisterModal(); 
-    }
-
-    // switch to login modal
-    function switchToLogin() {
-        toggleRegisterModal();
-        toggleModal();
-    }
 </script>
+@endif

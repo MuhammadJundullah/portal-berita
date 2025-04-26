@@ -136,3 +136,34 @@
     </div>
 @endif
 
+<script>
+     // show register modal
+    function toggleRegisterModal() {
+        let modal = document.getElementById("registerModal");
+        modal.classList.toggle("hidden");
+        setTimeout(() => {
+            modal.classList.toggle("opacity-0");
+        }, 10);
+    }
+    
+    // show login modal
+    function toggleModal() {
+        let modal = document.getElementById("loginModal");
+        modal.classList.toggle("hidden");
+        setTimeout(() => {
+            modal.classList.toggle("opacity-0");
+        }, 10);
+    }
+
+    // switch to register modal
+    function switchToRegister() {
+        toggleModal(); 
+        toggleRegisterModal(); 
+    }
+
+    // switch to login modal
+    function switchToLogin() {
+        toggleRegisterModal();
+        toggleModal();
+    }
+</script>

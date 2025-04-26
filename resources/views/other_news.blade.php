@@ -85,6 +85,7 @@
 </div>
 @endsection
 
+@if(Auth::check())
 <!-- Script  -->
 <script>
     // check like status
@@ -187,4 +188,5 @@
         toggleRegisterModal(); 
     }
 </script>
+@endif
 

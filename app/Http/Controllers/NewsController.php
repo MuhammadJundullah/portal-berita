@@ -19,7 +19,7 @@ class NewsController extends Controller
         $user = Auth::user();
         $userAge = $user ? Carbon::parse($user->created_at)->diffInDays(now()) : 0;
 
-        // Ambil berita terbaru dari News API
+        // Fetch berita terbaru dari News API
         $cacheKeyLatest = 'news_latest';
         if (Cache::has($cacheKeyLatest)) {
             $berita_terbaru = Cache::get($cacheKeyLatest);
@@ -35,7 +35,7 @@ class NewsController extends Controller
             Cache::put($cacheKeyLatest, $berita_terbaru, $cacheTime);
         }
 
-        // Ambil berita trending dari News API
+        // Fetch berita trending dari News API
         $cacheKeyTrending = 'news_trending';
         if (Cache::has($cacheKeyTrending)) {
             $berita_trending = Cache::get($cacheKeyTrending);
@@ -49,7 +49,7 @@ class NewsController extends Controller
             Cache::put($cacheKeyTrending, $berita_trending, $cacheTime);
         }
 
-        // Jika user berumur lebih dari 7 hari, gunakan rekomendasi Flask API
+        // Jika akun user lebih dari 7 hari, gunakan rekomendasi berita ini
         $berita_rekomendasi = [];
         if ($user && $userAge >= 7) {
             $cacheKeyRecommendation = 'news_recommendation_' . $user->id;
@@ -59,7 +59,7 @@ class NewsController extends Controller
                 $preferences = $user->preferences;
                 $userInteractions = User_interactions::where('user_id', $user->id)->pluck('news_title');
 
-                $response = Http::post('http://localhost:5000/recommend_news', [
+                $response = Http::post('https://api-recomendation-news-production.up.railway.app/recommend_news', [
                     'preferences' => $preferences,
                     'interactions' => $userInteractions->toArray(),
                 ]);
@@ -111,7 +111,7 @@ class NewsController extends Controller
         ));
     }
 
-    // for get data user interaction in home page
+    // Untuk mendapatkan informasi intearaksi user
     public function interact(Request $request)
     {
         if (!Auth::check()) {

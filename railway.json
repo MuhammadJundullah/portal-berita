@@ -2,12 +2,19 @@
     "builds": [
         {
             "src": "vite.config.js",
-            "use": "@railway/vite"
+            "use": "@railway/vite",
+            "config": {
+                "buildCommand": "npm run build",
+                "outputDir": "public/build"
+            }
         },
         {
             "src": "package.json",
             "use": "npm",
             "cmd": "npm run build"
         }
-    ]
+    ],
+    "deploy": {
+        "startCommand": "php artisan serve --port=$PORT"
+    }
 }

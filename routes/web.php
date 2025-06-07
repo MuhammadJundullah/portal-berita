@@ -15,7 +15,7 @@ Route::get('/auth/google', function () {
 });
 
 Route::get('/auth/google/callback', function () {
-    $googleUser = Socialite::driver('google')->stateless()->user();
+    $googleUser = Socialite::driver('google')->user();
 
     $user = User::updateOrCreate(
         ['email' => $googleUser->getEmail()],
@@ -64,8 +64,6 @@ Route::middleware(['auth'])->group(function () {
 
         return response()->json(['liked' => $liked]);
     });
-
-    Route::get('/recommend/{userId}', [RecommendationController::class, 'recommend']);
 
     Route::post('/interact', [NewsController::class, 'interact']);
 

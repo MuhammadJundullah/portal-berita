@@ -37,7 +37,7 @@ Route::get('/other-news', [NewsController::class, 'other_news'])->name('other_ne
 
 Route::get('/search', [NewsController::class, 'search'])->name('search');
 
-Route::get('/login', [AuthController::class, 'view_login'])->name('login');
+Route::get('/login', [AuthController::class, 'view_login'])->name('viewlogin');
 
 Route::get('/Unauthorized', [AuthController::class, 'unauthenticated'])->name('unauthenticated');
 

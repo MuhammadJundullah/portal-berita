@@ -11,9 +11,9 @@
 
     <div class="grid grid-cols-1 gap-4">
         <div class="rounded-lg bg-gray-200 lg:col-span-2 mt-5">
-            <div class="m-10">
+            <div class="sm:m-10 m-5">
                 <a href={{ route('home') }} class="hover:text-slate-900 text-slate-500 StyreneB" >&larr; kembali</a>
-                <p class="my-5 text-xl fw-bold StyreneB">Menampilkan pencarian untuk " {{ $q }} "</p>
+                <p class="my-5 sm:text-xl fw-bold StyreneB">Menampilkan pencarian untuk "{{ $q }}"</p>
                 <div class="container grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 ">
                     @foreach ($news['articles'] as $item)                        
                         <article

@@ -1,11 +1,11 @@
 <div>
     <footer class="bg-gray-800">
-      <div class="mx-auto max-w-5xl px-4 pb-16 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
         <div class="flex justify-center text-teal-100 -py-20">
-          <img src="{{ asset('img/nobck.png') }}" alt="NewsToday.com" width="200" height="200" class="rounded-full">
+          <img src="{{ asset('img/nobck.png') }}" alt="NewsToday.com" width="200" height="200" class="rounded-full sm:h-full h-28 w-28">
         </div>
 
-        <p class="mx-auto max-w-md text-center leading-relaxed text-gray-100">
+        <p class="mx-auto max-w-md text-center leading-relaxed text-gray-100 sm:text-lg text-sms">
           News Today is your trusted source for the latest news, updates, and insights from around the world. Stay informed and connected with us.
         </p>
 

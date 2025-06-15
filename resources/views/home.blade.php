@@ -4,7 +4,7 @@
 
 {{-- modal password salah --}}
 @if(session('error'))
-   <div class="pt-10 px-10">
+   <div class="sm:pt-10 sm:px-10 px-2 pt-4">
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
             <strong class="font-bold">Oops! Ada kesalahan:</strong>
             <ul class="mt-2">
@@ -19,7 +19,7 @@
 <!-- Modal login -->
 @include('Components.login')
 
-<div class="md:p-10 p-2">
+<div class="sm:p-10 p-2">
 
     @include('Components.topbar')
 
@@ -29,7 +29,7 @@
 
         @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
-                <div class="m-10">
+                <div class="sm:m-10 m-5">
                     <p class="my-5 text-xl fw-bold ">Berita Menarik Untuk Anda</p>
                     <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_rekomendasi as $item)            
@@ -91,7 +91,7 @@
         {{-- berita tranding untuk user yang belum login atau user baru --}}
 
             <div class="rounded-lg bg-gray-200 lg:col-span-2">
-                <div class="m-10">
+                <div class="sm:m-10 m-5">
                     <p class="my-5 text-xl fw-bold ">Berita Trending </p>
                     <div class="h-screen container grid lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-4 overflow-y-auto">
                         @foreach ($berita_trending as $item)            
@@ -160,7 +160,7 @@
         {{-- berita terbaru --}}
 
         <div class="rounded-lg bg-gray-200">
-            <div class="m-10">
+            <div class="sm:m-10 m-5">
                 <p class="my-5 text-xl fw-bold ">Berita Terbaru</p>
                 <div class="h-screen container grid grid-cols-1 gap-4 overflow-y-auto">
                     @foreach ($berita_terbaru as $item)            
@@ -223,8 +223,8 @@
 
     @if (Auth::check() && Auth::user()->created_at->diffInMonths(now()) >= 1)    
         <div class="rounded-lg bg-gray-200 mt-7">
-            <div class="p-10">
-                <p class="my-5 text-xl fw-bold ">Berita Trending</p>
+            <div class="sm:m-10 m-5">
+                <p class="py-5 text-xl fw-bold ">Berita Trending</p>
                 <div class="container flex gap-6 overflow-x-auto max-w-screen max-h-full">
                     @foreach ($berita_trending as $item)
                         <article
